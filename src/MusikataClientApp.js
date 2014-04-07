@@ -4,7 +4,16 @@ define(function(require){
 
   MyApp = new Marionette.Application();
 
-  var MusikataClientApp = Marionette.Application.extend({
+  var MusikataClientApp = Marionette.Layout.extend({
+
+    template: function() {
+      return '<div class="main"></div>'
+    },
+
+    regions: {
+      mainView: '.main'
+    },
+
 
     setPaths: function(paths){
       this.paths = paths;
@@ -25,13 +34,35 @@ define(function(require){
     },
 
     createViewForNode: function(node){
-      return {
-        type: 'foo'
+
+      // A mapping from node types to view types.
+      var typesRegistry = {
+        foo: 'FooView'
       };
+
+      var ViewClass = this.getViewClass(typesRegistry[node.type]);
+
+      return new ViewClass();
+    },
+
+    getViewClass: function(viewClass) {
+      // Here is where the actual class loading would happen.
+      // This is the bit I need to figure out. How to define which classes are
+      // in which bundles.
+      var FooView = Marionette.ItemView.extend({
+        template: function() {
+          return 'foo';
+        }
+      });
+
+      if (viewClass === 'FooView') {
+        return FooView;
+      }
+
     },
 
     showView: function(view){
-      this.currentView = view;
+      this.mainView.show(view);
       return;
     },
 

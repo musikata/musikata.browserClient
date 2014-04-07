@@ -25,7 +25,7 @@ define(function(require) {
       _.extend(Path.prototype, {
         // For now, just return dummy node.
         getNodeByPath: function(nodePath){
-          return {id: 'dummyNode'};
+          return {id: 'dummyNode', type: 'foo'};
         }
       });
 
@@ -55,8 +55,8 @@ define(function(require) {
         var pathId = 'testPath';
         var nodePath = '/A/A.A';
         app.showPathNode(pathId, nodePath);
-        var currentView = app.currentView;
-        expect(currentView.$el.html()).toContain('foo');
+        var mainView = app.mainView;
+        expect(mainView.currentView.$el.html()).toContain('foo');
       });
     });
 
