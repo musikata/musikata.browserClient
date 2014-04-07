@@ -35,7 +35,10 @@ define(function(require) {
           {
             id: 'A',
             children: [
-              {id: 'A.A'}
+              {
+                id: 'A.A',
+                type: 'foo'
+              }
             ]
           }
         ]
@@ -43,16 +46,17 @@ define(function(require) {
 
       beforeEach(function(){
         app = new MusikataClientApp();
-        app.paths = {
+        app.setPaths({
           'testPath': testPath
-        };
+        });
       });
 
       it("should show view for specified node", function(){
         var pathId = 'testPath';
         var nodePath = '/A/A.A';
         app.showPathNode(pathId, nodePath);
-        expect(app.currentView).toBe(viewForNode);
+        var currentView = app.currentView;
+        expect(currentView.$el.html()).toContain('foo');
       });
     });
 

@@ -38,7 +38,10 @@ module.exports = function(config) {
       ,
 
     // list of files to exclude
-    exclude: [],
+    exclude: [
+      // Don't include specs for 3rd party libs.
+      'bower_components/**/*spec.js'
+    ],
 
     // Set preprocessers to be empty, so that .html files
     // will be served as html for require.js text plugin.

@@ -1,12 +1,14 @@
 define(function(require){
   var _ = require('underscore');
+  var Marionette = require('marionette');
 
-  var MusikataClientApp = function(){
-    // Dummy db for paths. This will probably change.
-    this.paths = {};
-  };
+  MyApp = new Marionette.Application();
 
-  _.extend(MusikataClientApp.prototype, {
+  var MusikataClientApp = Marionette.Application.extend({
+
+    setPaths: function(paths){
+      this.paths = paths;
+    },
 
     showPathNode: function(pathId, nodePath){
       // Get the path from the db.
@@ -23,12 +25,15 @@ define(function(require){
     },
 
     createViewForNode: function(node){
-      return {};
+      return {
+        type: 'foo'
+      };
     },
 
     showView: function(view){
+      this.currentView = view;
       return;
-    }
+    },
 
   });
 
