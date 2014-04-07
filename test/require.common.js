@@ -11,7 +11,8 @@ require.config({
   },
 
   packages: [
-    {name: 'musikata_browser_client', location: 'src'}
+    {name: 'musikata.browser_client', location: 'src'},
+    {name: 'musikata.path', location: 'bower_components/musikata.path/src'}
   ],
 
   shim: {
