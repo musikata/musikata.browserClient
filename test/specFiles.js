@@ -3,7 +3,6 @@
 // confusing Karma with missing AMD dependencies.
 
 var specFiles = [
-  'MusikataClientApp.spec.js'
 ];
 
 // Prefix specs with specsDir.
