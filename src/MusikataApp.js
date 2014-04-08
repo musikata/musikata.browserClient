@@ -1,4 +1,5 @@
 define(function(require){
+  var _ = require('underscore');
   var Backbone = require('backbone');
   var Marionette = require('marionette');
 
@@ -21,25 +22,33 @@ define(function(require){
         // e.g. path:scrollPath.
         var viewType = nodeModel.get('viewType');
         var nodeType = nodeModel.get('nodeType');
-        var nodeViewClass = this.getViewClass(viewType);
+        
+        // Clean this up later. But for now handle deck stuff here.
+        if (viewType === 'deck') {
+          this.showDeckNode(nodeModel);
+        } else {
+          var nodeViewClass = this.getViewClass(viewType);
 
-        // Create view for node.
-        var viewOpts = {
-          model: nodeModel
-        };
-        if (viewType === 'path') {
-          var classNames = ['musikata-path'];
-          if (nodeType === 'scroll'){
-            classNames.push('scroll-path');
+          // Create view for node.
+          var classNames = [];
+          var viewOpts = {
+            model: nodeModel,
+          };
+          if (viewType === 'path') {
+            classNames.push('musikata-path');
+            if (nodeType === 'scroll'){
+              classNames.push('scroll-path');
+            }
           }
           _.extend(viewOpts, {
-            className: classNames.join(' ')
+            className: classNames.join(' '),
+            id: 'content'
           });
-        }
-        var nodeView = new nodeViewClass(viewOpts);
+          var nodeView = new nodeViewClass(viewOpts);
 
-        // Show the view.
-        app.main.show(nodeView);
+          // Show the view.
+          app.main.show(nodeView);
+        }
 
       },
 
@@ -65,8 +74,191 @@ define(function(require){
         else if (viewClassId === 'path') {
           return PathView;
         }
+      },
+
+      // Will probably want to move this out later...
+      showDeckNode: function(nodeModel){
+        // SUPER KLUDGY. BUT GET IT WORKING FIRST.
+        var ModelFactory = require('musikata.deck/ModelFactory');
+        var ViewFactory = require('musikata.deck/ViewFactory');
+        var HtmlView = require('musikata.deck/HtmlView');
+        var SelectorView = require('musikata.deck/SelectorView');
+        var CompositeModel = require('musikata.deck/CompositeModel');
+        var CompositeView = require('musikata.deck/CompositeView');
+        var DeckModel = require('musikata.deck/DeckModel');
+        var SlideModel = require('musikata.deck/SlideModel');
+        var ExerciseSlideModel = require('musikata.deck/ExerciseSlideModel');
+        var MusikataExerciseRunnerModel = require('musikata.deck/MusikataExerciseRunnerModel');
+        var MusikataExerciseRunnerView = require('musikata.deck/MusikataExerciseRunnerView');
+
+        var AudioManager = require('musikata.audioManager/AudioManager');
+        var AudioContext = require('musikata.audioManager/AudioContext');
+
+        var FeelTheBeatExerciseView = require('musikata.feelTheBeat/FeelTheBeatExerciseView');
+
+        // @TODO: abstract this for general exercises?
+        var FeelTheBeatExerciseSlideView = Marionette.Layout.extend({
+          template: function(){return '<div class="exercise-region"></div>';},
+          attributes: {
+            class: 'exercise-slide'
+          },
+          submissionType: 'automatic',
+          regions: {
+            exercise: '.exercise-region'
+          },
+          initialize: function(options){
+            this.options = options;
+          },
+          onRender: function(){
+            this.submission = this.model.get('submission');
+            this.exerciseView = new FeelTheBeatExerciseView(_.extend({
+              model: this.model
+            }, this.options.exerciseOptions));
+            this.exercise.show(this.exerciseView);
+
+            // Wire exercise events.
+            this.listenTo(this.exerciseView, 'submission:start', function(){
+              this.submission.set('state', 'submitting');
+            }, this)
+
+            this.listenTo(this.exerciseView, 'submission:end', function(evaluatedSubmission){
+              this.submission.set({
+                data: evaluatedSubmission,
+                result: evaluatedSubmission.result
+              });
+              this.submission.set('state', 'completed');
+            }, this)
+
+          }
+        });
+
+        var FeelTheBeatApp = function(options){
+          this.options = options;
+          var appConfig = options.appConfig;
+
+          /*
+          * Setup audioManager.
+          */
+          this.audioManager = new AudioManager({
+            audioContext: AudioContext
+          });
+
+          // Load samples.
+          var samples = [
+            {id: 'FeelTheBeat:beat', url: 'samples/med.mp3'},
+            {id: 'FeelTheBeat:tap', url: 'samples/high.mp3'}
+          ];
+          _.each(samples, _.bind(function(sample){
+            this.audioManager.loadSample(sample);
+          }, this));
+
+          /*
+          * Setup factories.
+          */
+
+          // Model factory.
+          this.modelFactory = new ModelFactory();
+          this.modelFactory.addHandler('html', SlideModel);
+          this.modelFactory.addHandler('selector', SlideModel);
+          this.modelFactory.addHandler('composite', CompositeModel);
+          this.modelFactory.addHandler('feelTheBeat', ExerciseSlideModel);
+
+          // View factory.
+          this.viewFactory = new ViewFactory();
+          this.viewFactory.addHandler('html', function(options){
+            return new HtmlView(options);
+          });
+          this.viewFactory.addHandler('selector', function(options){
+            return new SelectorView(options);
+          });
+          this.viewFactory.addHandler('composite', _.bind(function(options){
+            return new CompositeView(
+              _.extend({viewFactory: this.viewFactory}, options));
+          }, this));
+
+          this.viewFactory.addHandler('feelTheBeat', _.bind(function(options){
+            mergedOptions = _.extend({}, options);
+            mergedOptions.exerciseOptions = _.extend({
+              audioManager: this.audioManager,
+            }, mergedOptions.exerciseOptions);
+            return new FeelTheBeatExerciseSlideView(mergedOptions);
+          }, this));
+
+          /* 
+          * Setup models.
+          */
+          var deckModelOptions = {
+            parse: true,
+            modelFactory: this.modelFactory
+          };
+          var introDeckModel = new DeckModel(
+            { slides: appConfig.introSlides }, 
+            deckModelOptions
+          );
+
+          var exerciseDeckModel = new DeckModel(
+            { slides: appConfig.exerciseSlides },
+            deckModelOptions
+          );
+
+          this.runnerModel = new MusikataExerciseRunnerModel({
+            introDeck: introDeckModel,
+            exerciseDeck: exerciseDeckModel,
+            destination: options.destination
+          });
+
+          this.runnerView = new MusikataExerciseRunnerView({
+            model: this.runnerModel,
+            viewFactory: this.viewFactory,
+            className: 'app musikata-exercise-deck-runner exercise-deck-frame',
+            id: 'content'
+          });
+
+          // Route navigation events.
+          this.runnerView.on('navigate', function(route){
+            if (route === 'dojo'){
+              appConfig.goToHome();
+            }
+            else if (route === 'destination' || route === 'feedback'){
+              appConfig.goToFeedback();
+            }
+            else if (route === 'tryAgain'){
+              window.location.reload();
+            }
+          });
+
+        };
+
+        // Create feelTheBeat app and return runner view.
+        var feelTheBeatApp = new FeelTheBeatApp({
+          appConfig: {
+            introSlides: [
+              {type: 'html', html: 'introSlide-1'},
+              {type: 'html', html: 'introSlide-2'}
+            ],
+            exerciseSlides: [
+              {type: 'feelTheBeat', bpm: 90, length: 4, threshold: .4, maxFailedBeats: 1},
+              {type: 'feelTheBeat', bpm: 60, length: 4, threshold: .2, maxFailedBeats: 2},
+              {type: 'feelTheBeat', bpm: 120, length: 8, threshold: .3, maxFailedBeats: 4},
+              {type: 'feelTheBeat', bpm: 90, length: 6, threshold: .1, maxFailedBeats: 0}
+            ],
+            goToFeedback: function(){
+              alert('goToFeedback');
+            },
+            goToHome: function(){
+              alert('goToHome');
+            }
+          }
+        });
+        
+        // Set body class.
+        $('body').addClass('fit-screen');
+        // Show the runner view.
+        app.main.show(feelTheBeatApp.runnerView);
       }
     });
+
+
 
     var pathsRouter = new Marionette.AppRouter({
       appRoutes: {

@@ -12,7 +12,10 @@ require.config({
 
   packages: [
     {name: 'musikata.browser_client', location: 'src'},
-    {name: 'musikata.path', location: 'bower_components/musikata.path/src'}
+    {name: 'musikata.path', location: 'bower_components/musikata.path/src'},
+    {name: 'musikata.deck', location: 'bower_components/musikata.deck/src'},
+    {name: 'musikata.audioManager', location: 'bower_components/musikata.audioManager/src'},
+    {name: 'musikata.feelTheBeat', location: 'bower_components/musikata.feelTheBeat/src'}
   ],
 
   shim: {

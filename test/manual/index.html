@@ -16,8 +16,6 @@
     </div>
 
     <div id="main">
-      <div id="content" class="">
-      </div>
     </div>
 
     <script>
@@ -43,8 +41,8 @@
             {
               id: "node_3", 
               title: "Node 3",
-              viewType: "bar",
-              nodeType: "exercise"
+              viewType: "deck",
+              nodeType: "deck"
             },
             ]
           },
@@ -59,7 +57,7 @@
               id: "node_4", 
               title: "Node 4",
               viewType: "foo",
-              nodeType: "exercise"
+              nodeType: "deck"
             },
             ]
           }
@@ -94,7 +92,7 @@
 
         // Start the app.
         Musikata.app.start({
-          mainRegion: '#content'
+          mainRegion: '#main'
         });
       });
 
