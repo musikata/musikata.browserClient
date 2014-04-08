@@ -1,9 +1,23 @@
 <html>
   <head>
+    <link rel="stylesheet" type="text/css" href="../../bower_components/musikata.theme/css/app.css">
   </head>
   <body>
+    <div id="topBar" class="top-bar">
+      <ul class="title-area">
+        <li class="name">
+        <h1>
+          <a href="#">
+            <div id="logo"></div>
+          </a>
+        </h1>
+        </li>
+      </ul>
+    </div>
 
     <div id="main">
+      <div id="content" class="">
+      </div>
     </div>
 
     <script>
@@ -14,16 +28,21 @@
       Musikata.rawData.paths = {
         "testPath": {
           id: "testPath",
+          title: "Test Path",
+          description: "<p>This is a test path</p>",
           viewType: 'path',
           nodeType: 'path',
           children: [
           {
             id: "node_1", 
+            title: "Node 1",
             viewType: "path",
             nodeType: "scroll",
+            iconClass: "yellow-belt",
             children: [
             {
               id: "node_3", 
+              title: "Node 3",
               viewType: "bar",
               nodeType: "exercise"
             },
@@ -31,11 +50,14 @@
           },
           {
             id: "node_2",
+            title: "Node 2",
             viewType: "path",
             nodeType: "scroll",
+            iconClass: "green-belt",
             children: [
             {
               id: "node_4", 
+              title: "Node 4",
               viewType: "foo",
               nodeType: "exercise"
             },
@@ -72,7 +94,7 @@
 
         // Start the app.
         Musikata.app.start({
-          mainRegion: '#main'
+          mainRegion: '#content'
         });
       });
 

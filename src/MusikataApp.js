@@ -17,11 +17,27 @@ define(function(require){
         var nodeModel = this.getNodeData(pathId, nodePath);
         console.log(nodeModel);
         // Get view class for node.
-        var nodeViewClass = this.getViewClass(nodeModel.get('viewType'));
+        // Hmm...might combine viewType and nodeType, maybe namespacing w/ colons.
+        // e.g. path:scrollPath.
+        var viewType = nodeModel.get('viewType');
+        var nodeType = nodeModel.get('nodeType');
+        var nodeViewClass = this.getViewClass(viewType);
+
         // Create view for node.
-        var nodeView = new nodeViewClass({
+        var viewOpts = {
           model: nodeModel
-        });
+        };
+        if (viewType === 'path') {
+          var classNames = ['musikata-path'];
+          if (nodeType === 'scroll'){
+            classNames.push('scroll-path');
+          }
+          _.extend(viewOpts, {
+            className: classNames.join(' ')
+          });
+        }
+        var nodeView = new nodeViewClass(viewOpts);
+
         // Show the view.
         app.main.show(nodeView);
 
