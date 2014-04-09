@@ -46,6 +46,9 @@ define(function(require){
           });
           var nodeView = new nodeViewClass(viewOpts);
 
+          //  Set body class.
+          $('body').removeClass('fit-screen');
+
           // Show the view.
           app.main.show(nodeView);
         }
@@ -78,6 +81,9 @@ define(function(require){
 
       // Will probably want to move this out later...
       showDeckNode: function(nodeModel){
+        // Save the parent path for the target destination.
+        var destination = Backbone.history.fragment.replace(/(.*)\/.*/, '$1');
+
         // SUPER KLUDGY. BUT GET IT WORKING FIRST.
         var ModelFactory = require('musikata.deck/ModelFactory');
         var ViewFactory = require('musikata.deck/ViewFactory');
@@ -142,15 +148,6 @@ define(function(require){
           this.audioManager = new AudioManager({
             audioContext: AudioContext
           });
-
-          // Load samples.
-          var samples = [
-            {id: 'FeelTheBeat:beat', url: 'samples/med.mp3'},
-            {id: 'FeelTheBeat:tap', url: 'samples/high.mp3'}
-          ];
-          _.each(samples, _.bind(function(sample){
-            this.audioManager.loadSample(sample);
-          }, this));
 
           /*
           * Setup factories.
@@ -219,11 +216,14 @@ define(function(require){
             if (route === 'dojo'){
               appConfig.goToHome();
             }
-            else if (route === 'destination' || route === 'feedback'){
+            else if (route === 'destination'){
+              appConfig.goToHome();
+            }
+            else if (route === 'feedback'){
               appConfig.goToFeedback();
             }
             else if (route === 'tryAgain'){
-              window.location.reload();
+              appConfig.tryAgain();
             }
           });
 
@@ -233,20 +233,20 @@ define(function(require){
         var feelTheBeatApp = new FeelTheBeatApp({
           appConfig: {
             introSlides: [
-              {type: 'html', html: 'introSlide-1'},
-              {type: 'html', html: 'introSlide-2'}
             ],
             exerciseSlides: [
               {type: 'feelTheBeat', bpm: 90, length: 4, threshold: .4, maxFailedBeats: 1},
-              {type: 'feelTheBeat', bpm: 60, length: 4, threshold: .2, maxFailedBeats: 2},
-              {type: 'feelTheBeat', bpm: 120, length: 8, threshold: .3, maxFailedBeats: 4},
-              {type: 'feelTheBeat', bpm: 90, length: 6, threshold: .1, maxFailedBeats: 0}
             ],
             goToFeedback: function(){
-              alert('goToFeedback');
+              console.log('goToFeedback');
             },
             goToHome: function(){
-              alert('goToHome');
+              console.log('goToHome');
+              Backbone.history.navigate(destination, {trigger: true});
+            },
+            tryAgain: function(){
+              console.log('tryAgain');
+              Backbone.history.loadUrl( Backbone.history.fragment );
             }
           }
         });
@@ -255,6 +255,10 @@ define(function(require){
         $('body').addClass('fit-screen');
         // Show the runner view.
         app.main.show(feelTheBeatApp.runnerView);
+        window.foo = function(){
+          feelTheBeatApp.runnerView.model.set('result', 'fail');
+          feelTheBeatApp.runnerView.showOutroView();
+        }
       }
     });
 
