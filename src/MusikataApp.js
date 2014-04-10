@@ -3,8 +3,12 @@ define(function(require){
   var _ = require('underscore');
   var Backbone = require('backbone');
   var Marionette = require('marionette');
+  var setupData = require('./setupData');
 
   var PathView = require('musikata.path/PathView');
+
+  // @TODO: testing w/ hardcoded data. Take this out later.
+  setupData();
 
   // Create the app object.
   var app = new Marionette.Application();
@@ -26,7 +30,7 @@ define(function(require){
         
         // Clean this up later. But for now handle deck stuff here.
         if (viewType === 'deck') {
-          this.showDeckNode(nodeModel);
+          this.showDeckNode(nodeModel, pathId, nodePath);
         } else {
           var nodeViewClass = this.getViewClass(viewType);
 
@@ -81,7 +85,7 @@ define(function(require){
       },
 
       // Will probably want to move this out later...
-      showDeckNode: function(nodeModel){
+      showDeckNode: function(nodeModel, pathId, nodePath){
         // Save the parent path for the target destination.
         var destination = Backbone.history.fragment.replace(/(.*)\/.*/, '$1');
 
@@ -255,8 +259,35 @@ define(function(require){
         // Wire the deck runner.
         var _this = this;
         feelTheBeatApp.runnerView.on('submit', function(){
-          var updateUserPromise = _this.updateUserPath();
-          updateUserPromise.done(function(){
+          // Set attributes to update on UserPath node.
+          var submissionResult = feelTheBeatApp.runnerView.model.get('result');
+          var nodeUpdates = {};
+          if (submissionResult === 'pass'){
+            nodeUpdates['status'] = 'completed';
+          }
+
+          var userPath = Musikata.db.userPaths['testUser:testPath'];
+
+          // Get the node in the local user path.
+          var localNode = userPath.get('path').getNodeByPath(nodePath);
+          // Create node if it doesn't exist.
+          if (! localNode){
+            console.log("create UserPath node");
+            localNode = userPath.get('path').createNodeAtPath(nodePath, nodeUpdates);
+          }
+          // Otherwise update the node.
+          else {
+            console.log('update UserPath node');
+            localNode.set(nodeUpdates);
+          }
+
+          // Submit the updated user path to the persistence service.
+          var updateUserPromise = _this.updateUserPath(userPath);
+          updateUserPromise.done(function(updatedUserPath){
+            // Update the normal path.
+            var path = Musikata.db.paths[updatedUserPath.get('path').get('id')];
+            _this.mergePathAndUserPath(path, updatedUserPath);
+
             feelTheBeatApp.runnerView.showOutroView();
           });
         });
@@ -273,14 +304,44 @@ define(function(require){
         }
       },
 
-      updateUserPath: function(){
+      updateUserPath: function(userPath){
         console.log('updateUserPath');
-        // Fake service call.
-        var dfd = new $.Deferred();
+        var updateDeferred = new $.Deferred();
+        // @TODO: Here we would submit the path to the persistence service.
+        // For now, we fake a service call.
+        var serviceDeferred = new $.Deferred();
         setTimeout(function() {
-          dfd.resolve();
+          // @TODO:
+          // Eventually this would be a json object, from the 
+          // persistence service. But for now, we fake it and just
+          // pass backbone model.
+          var updatedUserPath = userPath;
+          serviceDeferred.resolve(updatedUserPath);
         }, 1000);
-        return dfd.promise();
+
+        // Handle the result from the service.
+        // @TODO: normally this would be json object, but for now
+        // we fake it and receive backbone model.
+        serviceDeferred.done(function(updatedUserPath){
+          var userPathId = [updatedUserPath.get('userId'), userPath.get('path').get('id')].join(':');
+          Musikata.db.userPaths[userPathId] = updatedUserPath;
+          // Resolve the update deferred to finish.
+          updateDeferred.resolve(updatedUserPath);
+        });
+
+        return updateDeferred.promise();
+      },
+
+      mergePathAndUserPath: function(path, userPath){
+        console.log('mergePathAndUserPath', path, userPath);
+        userPath.get('path').visitNodes(function(nodePath, userPathNode){
+          if (userPathNode.get('status') === 'completed'){
+            var pathNode = path.getNodeByPath(nodePath);
+            if (pathNode) {
+              pathNode.set('status', 'completed');
+            }
+          }
+        });
       }
     });
 

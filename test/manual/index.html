@@ -20,50 +20,6 @@
 
     <script>
       var Musikata = {};
-      Musikata.db = {};
-
-      Musikata.rawData = {};
-      Musikata.rawData.paths = {
-        "testPath": {
-          id: "testPath",
-          title: "Test Path",
-          description: "<p>This is a test path</p>",
-          viewType: 'path',
-          nodeType: 'path',
-          children: [
-          {
-            id: "node_1", 
-            title: "Node 1",
-            viewType: "path",
-            nodeType: "scroll",
-            iconClass: "yellow-belt",
-            children: [
-            {
-              id: "node_3", 
-              title: "Node 3",
-              viewType: "deck",
-              nodeType: "deck"
-            },
-            ]
-          },
-          {
-            id: "node_2",
-            title: "Node 2",
-            viewType: "path",
-            nodeType: "scroll",
-            iconClass: "green-belt",
-            children: [
-            {
-              id: "node_4", 
-              title: "Node 4",
-              viewType: "foo",
-              nodeType: "deck"
-            },
-            ]
-          }
-          ]
-        }
-      };
     </script>
 
     <script src="../../bower_components/requirejs/require.js"></script>
@@ -75,20 +31,12 @@
 
       require([
       'underscore',
-      'musikata.path/NodeModel',
       'musikata.browser_client/MusikataApp'
       ], function(
       _,
-      NodeModel,
       app
       ){
         Musikata.app = app;
-
-        // Parse path data.
-        Musikata.db.paths = {};
-        _.each(Musikata.rawData.paths, function(rawPath, pathId){
-          Musikata.db.paths[pathId] = new NodeModel(rawPath);
-        });
 
         // Start the app.
         Musikata.app.start({
