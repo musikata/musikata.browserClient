@@ -1,4 +1,5 @@
 define(function(require){
+  var $ = require('jquery');
   var _ = require('underscore');
   var Backbone = require('backbone');
   var Marionette = require('marionette');
@@ -250,15 +251,36 @@ define(function(require){
             }
           }
         });
+
+        // Wire the deck runner.
+        var _this = this;
+        feelTheBeatApp.runnerView.on('submit', function(){
+          var updateUserPromise = _this.updateUserPath();
+          updateUserPromise.done(function(){
+            feelTheBeatApp.runnerView.showOutroView();
+          });
+        });
         
         // Set body class.
         $('body').addClass('fit-screen');
         // Show the runner view.
         app.main.show(feelTheBeatApp.runnerView);
-        window.foo = function(){
-          feelTheBeatApp.runnerView.model.set('result', 'fail');
-          feelTheBeatApp.runnerView.showOutroView();
+        window.foo = function(result){
+          console.log('foo');
+          feelTheBeatApp.runnerView.model.set('result', result || 'pass');
+          feelTheBeatApp.runnerView.trigger('submit');
+
         }
+      },
+
+      updateUserPath: function(){
+        console.log('updateUserPath');
+        // Fake service call.
+        var dfd = new $.Deferred();
+        setTimeout(function() {
+          dfd.resolve();
+        }, 1000);
+        return dfd.promise();
       }
     });
 
