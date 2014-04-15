@@ -5,6 +5,8 @@ define(function(require){
   var LoginViewTemplate = require('text!./templates/LoginView.html')
 
   var LoginView = Marionette.ItemView.extend({
+    tagName: 'form',
+    className: 'login-form',
     template: Handlebars.compile(LoginViewTemplate),
     ui: {
       user: '[name="user"]',
@@ -22,6 +24,7 @@ define(function(require){
     },
 
     onClickLoginButton: function(){
+      this.ui.statusMessage.hide();
       this.trigger('submission:start', this.model.toJSON());
       this.ui.loginButton.prop('disabled', true);
     },
@@ -29,6 +32,8 @@ define(function(require){
     onSubmissionEnd: function(result){
       if (result.status == 'fail'){
         this.ui.statusMessage.html(result.error);
+        this.ui.statusMessage.addClass('warning');
+        this.ui.statusMessage.show();
       }
       this.ui.loginButton.prop('disabled', false);
     }

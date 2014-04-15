@@ -63,6 +63,7 @@ define(function(require){
         describe('when submission result is fail', function(){
           it('should show the failure message', function(){
             view.trigger('submission:end', {status: 'fail', error: 'badness'});
+            expect(view.ui.statusMessage.hasClass('warning')).toBe(true);
             expect(view.ui.statusMessage.html()).toContain('badness');
           });
 

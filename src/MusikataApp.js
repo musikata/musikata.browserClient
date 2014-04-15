@@ -6,6 +6,7 @@ define(function(require){
   var setupData = require('./setupData');
 
   var PathView = require('musikata.path/PathView');
+  var LoginView = require('./LoginView');
 
   // @TODO: testing w/ hardcoded data. Take this out later.
   setupData();
@@ -16,65 +17,56 @@ define(function(require){
   // Add login controller.
   app.addInitializer(function(options){
     var LoginController = Marionette.Controller.extend({
-      showLoginView: function() {
-        var LoginView = Marionette.ItemView.extend({
-          template: function() {
-            return '<input name="user" type="text" value="username"><input type="password" name="password" value="password"><div class="submit button">submit</div>';
-          },
-          events: {
-            'click .submit': 'onClickSubmit'
-          },
-          onClickSubmit: function(){
-            console.log('onClickSubmit');
-            this.postLoginCredentials()
-          },
-          getFormValues: function(){
-            var values = {};
-            var valueKeys = ['user', 'password'];
-            for (var i=0; i < valueKeys.length; i++){
-              var valueKey = valueKeys[i];
-              values[valueKey] = this.$el.find('[name="' + valueKey + '"]').val();
-            }
-            return values;
-          },
-          postLoginCredentials: function(){
-            console.log('postLoginCredentials');
-            var formValues = this.getFormValues();
-            console.log('fv', formValues);
-            // Fake login service for now.
-            // @TODO: replace this w/ service, or event.
-            var loginDeferred = new $.Deferred();
-            loginDeferred.done(function(data){
-              if (data.status == 200){
-                console.log('login success');
-                Musikata.session = data.session;
-                console.log('show main view');
-              }
-              else {
-                console.log('login fail');
-              }
-            });
 
-            setInterval(function(){
-              var loginResult = {};
-              if (formValues.user === 'bob'){
-                loginResult = {
-                  status: 200,
-                  session: {}
-                }
-              }
-              else {
-                loginResult = {
-                  status: 401
-                }
-              }
-              loginDeferred.resolve(loginResult);
-            }, 1000);
+      postLoginCredentials: function(credentials, loginView){
+        console.log('postLoginCredentials');
+        // Fake login service for now.
+        // @TODO: replace this w/ service, or event.
+        var loginDeferred = new $.Deferred();
+        loginDeferred.done(function(data){
+          var loginResult = {};
+          if (data.status == 200){
+            loginResult = {
+              status: 'sucess'
+            };
+            console.log('login success');
+            Musikata.session = data.session;
+            console.log('show main view');
           }
+          else {
+            loginResult = {
+              status: 'fail',
+              error: 'bad username or password'
+            };
+          }
+          loginView.trigger('submission:end', loginResult);
         });
-        var loginView = new LoginView();
+
+        setInterval(function(){
+          var loginResult = {};
+          if (credentials.user === 'bob'){
+            loginResult = {
+              status: 200,
+              session: {}
+            }
+          }
+          else {
+            loginResult = {
+              status: 401
+            }
+          }
+          loginDeferred.resolve(loginResult);
+        }, 1000);
+      },
+
+      showLoginView: function() {
+        var loginView = new LoginView({
+          model: new Backbone.Model()
+        });
+        loginView.on('submission:start', function(credentials) {
+          this.postLoginCredentials(credentials, loginView);
+        }, this);
         app.main.show(loginView);
-        console.log('show login view');
       }
     });
 
