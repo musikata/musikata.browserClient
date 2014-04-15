@@ -13,6 +13,87 @@ define(function(require){
   // Create the app object.
   var app = new Marionette.Application();
 
+  // Add login controller.
+  app.addInitializer(function(options){
+    var LoginController = Marionette.Controller.extend({
+      showLoginView: function() {
+        var LoginView = Marionette.ItemView.extend({
+          template: function() {
+            return '<input name="user" type="text" value="username"><input type="password" name="password" value="password"><div class="submit button">submit</div>';
+          },
+          events: {
+            'click .submit': 'onClickSubmit'
+          },
+          onClickSubmit: function(){
+            console.log('onClickSubmit');
+            this.postLoginCredentials()
+          },
+          getFormValues: function(){
+            var values = {};
+            var valueKeys = ['user', 'password'];
+            for (var i=0; i < valueKeys.length; i++){
+              var valueKey = valueKeys[i];
+              values[valueKey] = this.$el.find('[name="' + valueKey + '"]').val();
+            }
+            return values;
+          },
+          postLoginCredentials: function(){
+            console.log('postLoginCredentials');
+            var formValues = this.getFormValues();
+            console.log('fv', formValues);
+            // Fake login service for now.
+            // @TODO: replace this w/ service, or event.
+            var loginDeferred = new $.Deferred();
+            loginDeferred.done(function(data){
+              if (data.status == 200){
+                console.log('login success');
+                Musikata.session = data.session;
+                console.log('show main view');
+              }
+              else {
+                console.log('login fail');
+              }
+            });
+
+            setInterval(function(){
+              var loginResult = {};
+              if (formValues.user === 'bob'){
+                loginResult = {
+                  status: 200,
+                  session: {}
+                }
+              }
+              else {
+                loginResult = {
+                  status: 401
+                }
+              }
+              loginDeferred.resolve(loginResult);
+            }, 1000);
+          }
+        });
+        var loginView = new LoginView();
+        app.main.show(loginView);
+        console.log('show login view');
+      }
+    });
+
+    app.loginController = new LoginController();
+  });
+
+  app.on('initialize:after', function() {
+    // Check for authenticated session.
+    if (Musikata && Musikata.session) {
+      // Show main view.
+      console.log('show main view');
+    }
+    else {
+      // Show login view.
+      app.loginController.showLoginView();
+    }
+  });
+
+
   // Add routing for paths.
   app.addInitializer(function(options){
 
