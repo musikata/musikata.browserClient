@@ -1,4 +1,6 @@
 define(function(require){
+  
+  var Stickit = require('backbone.stickit');
   var Marionette = require('marionette');
   var Handlebars = require('handlebars');
   
@@ -21,6 +23,13 @@ define(function(require){
 
     initialize: function(){
       this.on('submission:end', this.onSubmissionEnd, this);
+    },
+
+    onRender: function(){
+      var bindings = {};
+      bindings[this.ui.user.selector] = 'user';
+      bindings[this.ui.password.selector] = 'password';
+      this.stickit(this.model, bindings);
     },
 
     onClickLoginButton: function(){

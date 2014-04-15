@@ -8,6 +8,7 @@ require.config({
     'backbone.wreqr': 'bower_components/backbone.wreqr/lib/amd/backbone.wreqr',
     'backbone.babysitter': 'bower_components/backbone.babysitter/lib/amd/backbone.babysitter',
     handlebars: 'bower_components/handlebars/handlebars',
+    'backbone.stickit': 'bower_components/backbone.stickit/backbone.stickit',
   },
 
   packages: [

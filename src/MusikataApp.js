@@ -19,7 +19,7 @@ define(function(require){
     var LoginController = Marionette.Controller.extend({
 
       postLoginCredentials: function(credentials, loginView){
-        console.log('postLoginCredentials');
+        console.log('postLoginCredentials', credentials);
         // Fake login service for now.
         // @TODO: replace this w/ service, or event.
         var loginDeferred = new $.Deferred();
