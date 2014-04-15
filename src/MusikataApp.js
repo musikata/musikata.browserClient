@@ -4,9 +4,11 @@ define(function(require){
   var Backbone = require('backbone');
   var Marionette = require('marionette');
   var setupData = require('./setupData');
+  var Handlebars = require('handlebars');
 
   var PathView = require('musikata.path/PathView');
   var LoginView = require('./LoginView');
+  var DojoHomeView = require('./DojoHomeView');
 
   // @TODO: testing w/ hardcoded data. Take this out later.
   setupData();
@@ -14,7 +16,22 @@ define(function(require){
   // Create the app object.
   var app = new Marionette.Application();
 
-  // Add login controller.
+  // Dojo view stuff.
+  app.addInitializer(function(options){
+    var DefaultRouter = new Marionette.AppRouter({
+      appRoutes: {
+        'dojo': 'showDojoHome'
+      },
+      controller: {
+        showDojoHome: function(){
+          var dojoHomeView = new DojoHomeView();
+          app.main.show(dojoHomeView);
+        }
+      }
+    });
+  });
+
+  // Add login stuff.
   app.addInitializer(function(options){
     var LoginController = Marionette.Controller.extend({
 
@@ -31,7 +48,8 @@ define(function(require){
             };
             console.log('login success');
             Musikata.session = data.session;
-            console.log('show main view');
+            console.log('show dojo home');
+            Backbone.history.navigate('dojo', true);
           }
           else {
             loginResult = {
