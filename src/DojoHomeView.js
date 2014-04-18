@@ -15,12 +15,7 @@ define(function(require){
     },
     onRender: function(){
       var pathListView = new PathListView({
-        collection: new Backbone.Collection([
-          new Backbone.Model({
-            id: 'testPath'
-          }),
-          new Backbone.Model()
-        ])
+        collection: this.model.get('paths') || new Backbone.Collection()
       });
       this.pathList.show(pathListView);
     }

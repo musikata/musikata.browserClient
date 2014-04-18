@@ -19,6 +19,7 @@ define(function(require){
         id: "testPath",
         title: "Test Path",
         description: "<p>This is a test path</p>",
+        icon: 'drum',
         viewType: 'path',
         nodeType: 'path',
         children: [
