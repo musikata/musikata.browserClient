@@ -440,7 +440,7 @@ define(function(require){
 
     var pathsRouter = new Marionette.AppRouter({
       appRoutes: {
-        "path/:pathId/*nodePath": "showPathNode"
+        "path/:pathId/*nodePath": "showPathNode",
       },
       controller: new PathController()
     });
@@ -459,7 +459,9 @@ define(function(require){
 
   // Start Backbone history to kick off routing.
   app.on("initialize:after", function(options){
-    Backbone.history.start();
+    Backbone.history.start({
+      root: window.location.pathname
+    });
   });
 
   return app;
