@@ -25,7 +25,7 @@ define(function(require){
       controller: {
         showDojoHome: function(){
           var dojoHomeView = new DojoHomeView();
-          app.main.show(dojoHomeView);
+          app.content.show(dojoHomeView);
         }
       }
     });
@@ -84,7 +84,7 @@ define(function(require){
         loginView.on('submission:start', function(credentials) {
           this.postLoginCredentials(credentials, loginView);
         }, this);
-        app.main.show(loginView);
+        app.content.show(loginView);
       }
     });
 
@@ -146,7 +146,7 @@ define(function(require){
           $('body').removeClass('fit-screen');
 
           // Show the view.
-          app.main.show(nodeView);
+          app.content.show(nodeView);
         }
 
       },
@@ -386,7 +386,7 @@ define(function(require){
         // Set body class.
         $('body').addClass('fit-screen');
         // Show the runner view.
-        app.main.show(feelTheBeatApp.runnerView);
+        app.content.show(feelTheBeatApp.runnerView);
         window.foo = function(result){
           console.log('foo');
           feelTheBeatApp.runnerView.model.set('result', result || 'pass');
@@ -449,11 +449,11 @@ define(function(require){
 
   // Define service for generating views.
 
-  // Add main region.
+  // Add content region.
   app.addInitializer(function(options){
     console.log(options);
     app.addRegions({
-      main: options.mainRegion
+      content: options.contentRegion
     });
   });
 
