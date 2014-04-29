@@ -34,5 +34,13 @@ require.config({
       exports: 'Handlebars'
     },
 
+  },
+
+  config: {
+    text: {
+      useXhr: function(){
+        return true;
+      }
+    }
   }
 });
