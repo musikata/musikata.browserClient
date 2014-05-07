@@ -1,11 +1,8 @@
 define(function(require){
 
-  var $ = require('jquery');
-  var _ = require('underscore');
   var Backbone = require('backbone');
   var Marionette = require('marionette');
   var setupData = require('./setupData');
-  var Handlebars = require('handlebars');
 
   var DojoHomeRouter = require('./dojoHome/DojoHomeRouter');
   var LoginController = require('./auth/LoginController');
@@ -25,9 +22,10 @@ define(function(require){
 
   // Setup auth.
   app.loginController = new LoginController();
-  app.on('initialize:after', function() {
-    app.loginController.checkLogin();
-  });
+  // @TODO: add this back in.
+  //app.on('initialize:after', function() {
+    //app.loginController.checkLogin();
+  //});
 
 
   // Setup path routes.

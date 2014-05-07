@@ -4,6 +4,7 @@ define(function(require){
   var PathView = require('musikata.path/PathView');
 
   var PathsController = Marionette.Controller.extend({
+
     showPathNode: function(pathId, nodePath) {
       console.log(pathId, nodePath);
       // Get data for node.
@@ -42,7 +43,7 @@ define(function(require){
         $('body').removeClass('fit-screen');
 
         // Show the view.
-        app.content.show(nodeView);
+        Musikata.app.content.show(nodeView);
       }
 
     },
@@ -282,7 +283,7 @@ define(function(require){
       // Set body class.
       $('body').addClass('fit-screen');
       // Show the runner view.
-      app.content.show(feelTheBeatApp.runnerView);
+      Musikata.app.content.show(feelTheBeatApp.runnerView);
       window.foo = function(result){
         console.log('foo');
         feelTheBeatApp.runnerView.model.set('result', result || 'pass');
