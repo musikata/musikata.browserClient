@@ -31,7 +31,7 @@ define(function(require){
         // pass backbone model.
         var updatedUserPath = userPath;
         serviceDeferred.resolve(updatedUserPath);
-      }, 1000);
+      }, 50);
 
       // Handle the result from the service.
       // @TODO: normally this would be json object, but for now

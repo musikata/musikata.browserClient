@@ -9,6 +9,7 @@ require.config({
     'backbone.babysitter': 'bower_components/backbone.babysitter/lib/amd/backbone.babysitter',
     handlebars: 'bower_components/handlebars/handlebars',
     'backbone.stickit': 'bower_components/backbone.stickit/backbone.stickit',
+    'infect': 'bower_components/infect/infect'
   },
 
   packages: [
@@ -20,20 +21,9 @@ require.config({
   ],
 
   shim: {
-    'underscore': {
-      deps: [],
-      exports: '_'
-    },
-
-    'backbone': {
-      deps: ['underscore', 'jquery'],
-      exports: 'Backbone'
-    },
-
     'handlebars': {
       exports: 'Handlebars'
     },
-
   },
 
   config: {
