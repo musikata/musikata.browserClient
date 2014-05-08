@@ -1,62 +1,13 @@
 define(function(require){
-
   var Marionette = require('marionette');
-
-  var PathView = require('musikata.path/PathView');
-  var DeckController = require('../deck/DeckController');
 
 
   var PathsController = Marionette.Controller.extend({
 
-    initialize: function(){
-      console.log("initialize");
-      // @TODO MOVE THIS DEPENDENCY OUT?
-      this.deckController = new DeckController();
-    },
-
     showPathNode: function(pathId, nodePath) {
-      console.log(pathId, nodePath);
-
-      // Get data for node.
       var nodeModel = this.getNodeData(pathId, nodePath);
-      console.log(nodeModel);
-
-      // Get view class for node.
-      // Hmm...might combine viewType and nodeType, maybe namespacing w/ colons.
-      // e.g. path:scrollPath.
-      var viewType = nodeModel.get('viewType');
-      var nodeType = nodeModel.get('nodeType');
-
-      // Clean this up later. But for now handle deck stuff here.
-      if (viewType === 'deck') {
-        this.deckController.showDeck(nodeModel);
-      } else {
-        var nodeViewClass = this.getViewClass(viewType);
-
-        // Create view for node.
-        var classNames = [];
-        var viewOpts = {
-          model: nodeModel,
-        };
-        if (viewType === 'path') {
-          classNames.push('musikata-path');
-          if (nodeType === 'scroll'){
-            classNames.push('scroll-path');
-          }
-        }
-        _.extend(viewOpts, {
-          className: classNames.join(' '),
-          id: 'content'
-        });
-        var nodeView = new nodeViewClass(viewOpts);
-
-        //  Set body class.
-        $('body').removeClass('fit-screen');
-
-        // Show the view.
-        Musikata.app.content.show(nodeView);
-      }
-
+      Musikata.app.mainController.showView(
+        nodeModel.get('viewType'), nodeModel);
     },
 
     getNodeData: function(pathId, nodePath){
@@ -65,26 +16,8 @@ define(function(require){
       return node;
     },
 
-    getViewClass: function(viewClassId) {
-      if (viewClassId === 'foo') {
-        var FooView = Marionette.ItemView.extend({
-          template: function() {return 'foo'; }
-        });
-        return FooView;
-      }
-      else if (viewClassId === 'bar') {
-        var BarView = Marionette.ItemView.extend({
-          template: function() {return 'bar'; }
-        });
-        return BarView;
-      }
-      else if (viewClassId === 'path') {
-        return PathView;
-      }
-    },
-
+    // @TODO
     // Will probably want to move this out later...
-
     updateUserPath: function(userPath){
       console.log('updateUserPath');
       var updateDeferred = new $.Deferred();
