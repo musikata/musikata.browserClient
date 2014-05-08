@@ -1,58 +1,85 @@
 define(function(require){
+  var _ = require('underscore');
   var Marionette = require('marionette');
-  var Injector = require('../Injector');
 
 
-  var DeckViewFactory = function(deckModel) {
+  var DeckViewFactory = function(injector) {
+    this.injector = injector;
+  };
 
-    // @TODO: these will come from deckModel.
-    // But for now hardcoded.
-    var introSlides = [];
-    var exerciseSlides = [
-      {type: 'FeelTheBeat', bpm: 90, length: 4, threshold: .4, maxFailedBeats: 1},
-    ];
+  _.extend(DeckViewFactory.prototype, {
 
-    // Setup deck models.
-    var deckModelFactory = function (attrs, opts) {
-      var defaults = {parse: true};
-      return Injector.get('DeckModel')(attrs, _.extend(defaults, opts));
-    };
-    var introDeckModel = deckModelFactory({slides: introSlides});
-    var exerciseDeckModel = deckModelFactory({ slides: exerciseSlides });
+    createDeckView: function(deckData) {
+      var runnerModel = this.createRunnerModel(deckData);
+      var runnerView = this.createRunnerView(runnerModel);
+      this.bindToRunnerView(runnerView);
+      return runnerView;
+    },
 
-    // Setup runner model.
-    var ExerciseRunnerModel = Injector.get('ExerciseRunnerModel');
-    this.runnerModel = new ExerciseRunnerModel({
-      introDeck: introDeckModel,
-      exerciseDeck: exerciseDeckModel,
-      destination: ''
-    });
+    createRunnerModel: function(deckData) {
+      // @TODO: these will come from deckData.
+      // But for now hardcoded.
+      var introSlides = [];
+      var exerciseSlides = [
+        {type: 'FeelTheBeat', bpm: 90, length: 4, threshold: .4, maxFailedBeats: 1},
+      ];
 
-    var runnerView = Injector.get('ExerciseRunnerView')({
-      model: this.runnerModel,
-      className: 'app musikata-exercise-deck-runner exercise-deck-frame',
-      id: 'content'
-    });
+      // Setup nested deck models.
+      var _this = this;
+      var deckModelFactory = function (attrs, opts) {
+        var defaults = {parse: true};
+        return _this.injector.get('DeckModel')(attrs, _.extend(defaults, opts));
+      };
+      var introDeckModel = deckModelFactory({slides: introSlides});
+      var exerciseDeckModel = deckModelFactory({ slides: exerciseSlides });
 
-    // Route navigation events.
-    runnerView.on('navigate', function(route){
-      if (route === 'dojo'){
-        console.log('goToHome');
-      }
-      else if (route === 'destination'){
-        Backbone.history.navigate(destination, {trigger: true});
-      }
-      else if (route === 'feedback'){
-        console.log('goToFeedback');
-      }
-      else if (route === 'tryAgain'){
-        console.log('tryAgain');
-        Backbone.history.loadUrl( Backbone.history.fragment );
-      }
-    });
+      // Setup runner model.
+      var ExerciseRunnerModel = this.injector.get('ExerciseRunnerModel');
+      var runnerModel = new ExerciseRunnerModel({
+        introDeck: introDeckModel,
+        exerciseDeck: exerciseDeckModel,
+        destination: ''
+      });
 
-    // Wire the deck runner.
-    runnerView.on('submit', function(){
+      return runnerModel;
+    },
+
+    createRunnerView: function (runnerModel) {
+      var runnerView = this.injector.get('ExerciseRunnerView')({
+        model: runnerModel,
+        className: 'app musikata-exercise-deck-runner exercise-deck-frame',
+        id: 'content'
+      });
+
+      return runnerView;
+    },
+
+    bindToRunnerView: function (runnerView) {
+
+      // Bind to runner navigation events.
+      runnerView.on('navigate', function(route){
+        if (route === 'dojo'){
+          console.log('goToHome');
+        }
+        else if (route === 'destination'){
+          Backbone.history.navigate(destination, {trigger: true});
+        }
+        else if (route === 'feedback'){
+          console.log('goToFeedback');
+        }
+        else if (route === 'tryAgain'){
+          console.log('tryAgain');
+          Backbone.history.loadUrl( Backbone.history.fragment );
+        }
+      });
+
+      // Bind to runner submission event.
+      runnerView.on('submit', function(){
+        this.onRunnerSubmission(runnerView);
+      }, this);
+    },
+
+    onRunnerSubmission: function(runnerView){
       // Set attributes to update on UserPath node.
       var submissionResult = runnerView.model.get('result');
       var nodeUpdates = {};
@@ -84,14 +111,8 @@ define(function(require){
 
         feelTheBeatApp.runnerView.showOutroView();
       });
-    });
-
-    return runnerView;
-
-    // Save the parent path for the target destination.
-    var destination = Backbone.history.fragment.replace(/(.*)\/.*/, '$1');
-
-  };
+    }
+  });
 
   return DeckViewFactory;
 });

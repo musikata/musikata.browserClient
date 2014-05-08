@@ -3,6 +3,7 @@
  */
 define(function(require){
   var _ = require('underscore');
+  // See https://github.com/amwmedia/infect.js
   var infect = require('infect');
 
   var Injector = infect;
@@ -95,6 +96,9 @@ define(function(require){
       return new AudioManager({audioContext: $AudioContext});
     }]);
 
+  // DeckViewFactory
+  var DeckViewFactory = require('./deck/DeckViewFactory');
+  Injector.set('DeckViewFactory', new DeckViewFactory(Injector));
 
   return Injector;
 

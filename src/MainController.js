@@ -3,11 +3,11 @@
  * in the main content area.
  */
 define(function(require){
-
+  var Injector = require('./Injector');
   var Marionette = require('marionette');
 
   var PathViewFactory = require('./paths/PathViewFactory');
-  var DeckViewFactory = require('./deck/DeckViewFactory');
+  var deckViewFactory = Injector.get('DeckViewFactory');
   
    
   var MainController = Marionette.Controller.extend({
@@ -21,7 +21,7 @@ define(function(require){
       var fitScreen = false;
 
       if (viewType === 'deck') {
-        view = DeckViewFactory(viewModel);
+        view = deckViewFactory.createDeckView(viewModel);
         fitScreen = true;
       }
       else if (viewType === 'path') {
