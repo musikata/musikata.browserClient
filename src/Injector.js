@@ -7,17 +7,30 @@ define(function(require){
 
   var Injector = infect;
 
-  // ModelFactory.
+  // Util to reduce boilerplate.
+  // injectionDef is an array that has keys for injectables
+  // as leading members, and function to inject as final member.
+  Injector.setAndInject = function(key, injectionDef) {
+    var keysForInjectables = injectionDef.slice(0, injectionDef.length - 1);
+    var funcToInject = injectionDef[injectionDef.length - 1];
+    var injectedFunc = Injector.func(funcToInject);
+    injectedFunc.$infect = keysForInjectables;
+    Injector.set(key, injectedFunc);
+  }
+
+
+  // Models
+
+  // ModelFactory
   var ModelFactory = require('./ModelFactory');
   Injector.set('ModelFactory', new ModelFactory(Injector));
 
-  // DeckModel.
+  // DeckModel
   var DeckModel = require('musikata.deck/DeckModel');
-  var InjectedDeckModel = Injector.func(function (attrs, opts, $ModelFactory) {
-    return new DeckModel(attrs, _.extend({modelFactory: $ModelFactory}, opts));
-  });
-  InjectedDeckModel.$infect = ['ModelFactory'];
-  Injector.set('DeckModel', InjectedDeckModel);
+  Injector.setAndInject('DeckModel', 
+    ['ModelFactory', function (attrs, opts, $ModelFactory) {
+      return new DeckModel(attrs, _.extend({modelFactory: $ModelFactory}, opts));
+    }]);
 
   // FeelTheBeatModel
   var ExerciseSlideModel = require('musikata.deck/ExerciseSlideModel');
@@ -36,31 +49,37 @@ define(function(require){
 
   // ExerciseRunnerView
   var MusikataExerciseRunnerView = require('musikata.deck/MusikataExerciseRunnerView');
-  InjectedRunnerView = Injector.func(function (opts, $ViewFactory) {
-    return new MusikataExerciseRunnerView(_.extend(
+  Injector.setAndInject('ExerciseRunnerView', 
+    ['ViewFactory', function (opts, $ViewFactory) {
+      return new MusikataExerciseRunnerView(_.extend(
       {viewFactory: $ViewFactory}, opts));
-  });
-  InjectedRunnerView.$infect = ['ViewFactory'];
-  Injector.set('ExerciseRunnerView', InjectedRunnerView);
+    }]);
 
   // FeelTheBeatView
   var FeelTheBeatView = require('musikata.feelTheBeat/FeelTheBeatExerciseView');
-  var InjectedFeelTheBeatView = Injector.func(
+  Injector.setAndInject('FeelTheBeatView', ['AudioManager', 
     function (opts, $AudioManager) {
       var mergedOpts = _.extend({audioManager: new $AudioManager()}, opts);
       return new FeelTheBeatView(mergedOpts);
-    }
-  );
-  InjectedFeelTheBeatView.$infect = ['AudioManager'];
-  Injector.set('FeelTheBeatView', InjectedFeelTheBeatView);
+    }]);
 
   // ExerciseSlideView
   var ExerciseSlideView = require('./ExerciseSlideView');
-  var InjectedExerciseSlideView = Injector.func(function (opts, $ViewFactory) {
-    return new ExerciseSlideView(_.extend({viewFactory: $ViewFactory}, opts));
-  });
-  InjectedExerciseSlideView.$infect = ['ViewFactory'];
-  Injector.set('ExerciseSlideView', InjectedExerciseSlideView);
+  Injector.setAndInject('ExerciseSlideView', ['ViewFactory',
+    function (opts, $ViewFactory) {
+      return new ExerciseSlideView(_.extend({viewFactory: $ViewFactory}, opts));
+    }]);
+
+  // HtmlView
+  var HtmlView = require('musikata.deck/HtmlView');
+  Injector.set('HtmlView', HtmlView);
+
+  // CompositeView
+  var CompositeView = require('musikata.deck/CompositeView');
+  Injector.setAndInject('CompositeView', ['ViewFactory', 
+    function (opts, $ViewFactory) {
+      return new CompositeView(_.extend({viewFactory: $ViewFactory}, opts));
+    }]);
 
 
   // Audio
@@ -71,50 +90,11 @@ define(function(require){
   
   // AudioManager
   var AudioManager = require('musikata.audioManager/AudioManager');
-  var InjectedAudioManager = Injector.func(function ($AudioContext) {
-    return new AudioManager({audioContext: $AudioContext});
-  });
-  Injector.set('AudioManager', InjectedAudioManager);
+  Injector.setAndInject('AudioManager', ['AudioContext',
+    function ($AudioContext) {
+      return new AudioManager({audioContext: $AudioContext});
+    }]);
 
-
-  /*
-
-
-  // Models
-  var SlideModel = require('musikata.deck/SlideModel');
-  Injector.register('model:html', SlideModel);
-  Injector.register('modelFactory', ModelFactory);
-
-  // Views
-  var ViewFactory = require('./ViewFactory');
-  var HtmlView = require('musikata.deck/HtmlView');
-  var SelectorView = require('musikata.deck/SelectorView');
-  var CompositeModel = require('musikata.deck/CompositeModel');
-  var CompositeView = require('musikata.deck/CompositeView');
-  var ExerciseSlideView = require('./ExerciseSlideView');
-  Injector.register('viewFactory', ViewFactory);
-  Injector.register('view:html', function(options) {
-    return new HtmlView(options);
-  });
-  Injector.register('view:selector', function(options) {
-    return new SelectorView(options);
-  });
-  Injector.register('view:composite', function(options){
-    return new CompositeView(_.extend({
-      viewFactory: Injector.get('viewFactory')
-    }, options));
-  }, this);
-  Injector.register('view:ExerciseSlideView', ExerciseSlideView);
-  // @TODO: clean this up.
-  Injector.register('view:feelTheBeat', function(options){
-    var mergedOptions = _.extend({}, options);
-    mergedOptions.exerciseOptions = _.extend({
-      audioManager: Injector.get('audioManager')
-    }, mergedOptions.exerciseOptions);
-    return new Injector.get('view:ExerciseSlideView')(mergedOptions);
-  }, this);
-  Injector.register('view:FeelTheBeatExerciseView', FeelTheBeatExerciseView);
-  */
 
   return Injector;
 
