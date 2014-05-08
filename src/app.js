@@ -17,7 +17,7 @@ define(function(require){
   // Create the app object.
   var app = new Marionette.Application();
 
-  // Add content region.
+  // Add regions.
   app.addInitializer(function(options){
     console.log(options);
     app.addRegions({
@@ -25,16 +25,19 @@ define(function(require){
     });
   });
 
-  // Set up main controller.
-  app.mainController = new MainController();
+  // Set up helper controllers.
+  app.addInitializer(function(options){
+    app.mainController = new MainController({
+      region: app.content
+    });
+    app.loginController = new LoginController();
+  });
 
   // Set up Dojo home routes.
   app.addInitializer(function(options){
     var dojoHomeRouter = new DojoHomeRouter();
   });
 
-  // Setup auth.
-  app.loginController = new LoginController();
   // @TODO: add this back in.
   //app.on('initialize:after', function() {
     //app.loginController.checkLogin();

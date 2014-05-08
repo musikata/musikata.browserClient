@@ -12,6 +12,10 @@ define(function(require){
    
   var MainController = Marionette.Controller.extend({
 
+    initialize: function(opts){
+      this.region = opts.region;
+    },
+
     showView: function(viewType, viewModel){
       var view;
       var fitScreen = false;
@@ -26,7 +30,7 @@ define(function(require){
       }
 
       $('body').toggleClass('fit-screen', fitScreen);
-      Musikata.app.content.show(view);
+      this.region.show(view);
     },
   });
 
