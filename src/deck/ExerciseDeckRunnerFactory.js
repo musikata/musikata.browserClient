@@ -60,10 +60,10 @@ define(function(require){
       // Bind to runner navigation events.
       runnerView.on('navigate', function(route){
         if (route === 'dojo'){
-          console.log('goToHome');
+          Backbone.history.navigate('dojo', {trigger: true});
         }
         else if (route === 'destination'){
-          Backbone.history.navigate(destination, {trigger: true});
+          Backbone.history.navigate(opts.destination, {trigger: true});
         }
         else if (route === 'feedback'){
           console.log('goToFeedback');

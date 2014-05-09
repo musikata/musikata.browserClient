@@ -12,6 +12,8 @@ define(function(require){
 
       var opts = {};
       if (viewType === 'deck') {
+        // Customize options for deck view.
+
         // Create callback for deck submission.
         opts.submissionHandler = _.bind(function (result) {
           this.onDeckSubmit({
@@ -21,21 +23,20 @@ define(function(require){
             nodePath: nodePath
           });
         }, this);
+
+        // Set destination.
+        opts.destination = Backbone.history.fragment.replace(/(.*)\/.*/, '$1');
       }
 
       Musikata.app.mainController.showView(
         nodeModel.get('viewType'), nodeModel, opts);
     },
 
-    onDeckSubmit : function(opts) {
+    onDeckSubmit: function(opts) {
       var _this = this;
       // @TODO
       // FAKE IT FOR NOW
       var dfd = new $.Deferred();
-      setTimeout(function () {
-        dfd.resolve();
-      }, 100);
-      return dfd;
       
       var nodeUpdates = {};
       if (opts.result === 'pass'){
@@ -45,12 +46,12 @@ define(function(require){
       var userPath = Musikata.db.userPaths['testUser:testPath'];
 
       // Get the node in the local user path.
-      var localNode = userPath.get('path').getNodeByPath(nodePath);
+      var localNode = userPath.get('path').getNodeByPath(opts.nodePath);
 
       // Create node if it doesn't exist.
       if (! localNode){
         console.log("create UserPath node");
-        localNode = userPath.get('path').createNodeAtPath(nodePath, nodeUpdates);
+        localNode = userPath.get('path').createNodeAtPath(opts.nodePath, nodeUpdates);
       }
       // Otherwise update the node.
       else {
@@ -64,7 +65,10 @@ define(function(require){
         // Update the normal path.
         var path = Musikata.db.paths[updatedUserPath.get('path').get('id')];
         _this.mergePathAndUserPath(path, updatedUserPath);
+        dfd.resolve();
       });
+
+      return dfd;
     },
 
     getNodeData: function(pathId, nodePath){
