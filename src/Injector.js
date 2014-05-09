@@ -58,7 +58,7 @@ define(function(require){
     }]);
 
   // DummyExercise
-  var DummyExerciseView = require('./DummyExerciseView');
+  var DummyExerciseView = require('./deck/DummyExerciseView');
   Injector.set('DummyExercise', DummyExerciseView);
 
   // FeelTheBeatExercise
@@ -70,7 +70,7 @@ define(function(require){
     }]);
 
   // ExerciseSlideView
-  var ExerciseSlideView = require('./ExerciseSlideView');
+  var ExerciseSlideView = require('./deck/ExerciseSlideView');
   Injector.setAndInject('ExerciseSlideView', ['ViewFactory',
     function (opts, $ViewFactory) {
       return new ExerciseSlideView(_.extend({viewFactory: $ViewFactory}, opts));
@@ -105,6 +105,24 @@ define(function(require){
   var ExerciseDeckRunnerFactory = require('./deck/ExerciseDeckRunnerFactory');
   Injector.set('ExerciseDeckRunnerFactory', 
     new ExerciseDeckRunnerFactory(Injector));
+
+
+  // Paths
+  var PathRepository = require('./paths/PathRepository');
+  Injector.set('PathRepository', new PathRepository());
+
+  var PathsController = require('./paths/PathsController');
+  Injector.setAndInject('PathsController', ['PathRepository',
+    function($PathRepository) {
+      return new PathsController($PathRepository);
+    }]);
+
+  var PathsRouter = require('./paths/PathsRouter');
+  Injector.setAndInject('PathsRouter', ['PathsController',
+    function($PathsController) {
+      return new PathsRouter({controller: $PathsController()});
+    }]);
+
 
   return Injector;
 

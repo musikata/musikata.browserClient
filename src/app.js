@@ -2,7 +2,9 @@ define(function(require){
 
   var Backbone = require('backbone');
   var Marionette = require('marionette');
+
   var setupData = require('./setupData');
+  var Injector = require('./Injector');
 
   var LoginController = require('./auth/LoginController');
   var MainController = require('./MainController');
@@ -45,7 +47,7 @@ define(function(require){
 
   // Setup path routes.
   app.addInitializer(function(options){ 
-    app.pathsRouter = new PathsRouter();
+    app.pathsRouter = Injector.get('PathsRouter')();
   });
 
   // Start Backbone history to kick off routing.

@@ -48,8 +48,7 @@ define(function(require){
     createRunnerView: function (runnerModel) {
       var runnerView = this.injector.get('ExerciseRunnerView')({
         model: runnerModel,
-        className: 'app musikata-exercise-deck-runner exercise-deck-frame',
-        id: 'content'
+        className: 'app musikata-exercise-deck-runner exercise-deck-frame'
       });
 
       return runnerView;
