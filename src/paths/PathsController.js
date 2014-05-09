@@ -12,6 +12,7 @@ define(function(require){
     },
 
     showPathNode: function(pathId, nodePath) {
+      /* Show vide for node by dispatching on view type */
       var _this = this;
       this.pathRepository.getNode({pathId: pathId, nodePath: nodePath})
       .then( function(node) {
@@ -25,7 +26,7 @@ define(function(require){
               nodePath: nodePath});
           };
 
-          // Set destination.
+          // Set destination to be parent node.
           opts.destination = Backbone.history.fragment.replace(/(.*)\/.*/, '$1');
         }
 
@@ -35,6 +36,7 @@ define(function(require){
     },
 
     onDeckSubmit: function(opts) {
+      /* Update path node when deck submission is complete */
       var _this = this;
       var promise;
       
