@@ -1,20 +1,66 @@
 define(function(require){
   var _ = require('underscore');
+  var $ = require('jquery');
   var Marionette = require('marionette');
+
+  var NodeModel = require('musikata.path/NodeModel');
+  var LocalStorageBackend = require('./LocalStorageBackend');
 
 
   var PathRepository = Marionette.Controller.extend({
 
     constructor: function() {
-      this.storageKey = 'musikata.paths';
+      this.backend = this.getBackend();
+
+      this._cache = {
+        paths: {}
+      };
+
       Marionette.Controller.apply(this);
     },
 
+    getBackend: function () {
+      return new LocalStorageBackend({storageKey: 'musikata.paths', 
+        entityType: ['path']});
+    },
+
     getNode: function(opts) {
-      console.log('get node');
-      var path = Musikata.db.paths[opts.pathId];
-      var node = path.getNodeByPath(opts.nodePath);
-      return node;
+      var dfd = new $.Deferred();
+      this.getPath({pathId: opts.pathId})
+      .then(function(path) {
+        dfd.resolve(path.getNodeByPath(opts.nodePath));
+      });
+      return dfd.promise();
+    },
+
+    getPath: function(opts){
+      /* Asynchronously get path. Returns path model. */
+      var dfd = new $.Deferred();
+
+      // Return cached path if it exists.
+      var cachedPath = _.has(this._cache.paths, opts.pathId);
+      if (cachedPath) {
+        dfd.resolve(cachedPath);
+        return dfd.promise();
+      }
+
+      // Otherwise pull data and convert to model.
+      var _this = this;
+      this.fetchRawPath(opts.pathId)
+      .then(function (rawPath) {
+        dfd.resolve(_this.parsePath(rawPath));
+      });
+
+      return dfd.promise();
+    },
+
+    fetchRawPath: function(pathId) {
+      return this.backend.get({entity: 'path', id: pathId})
+    },
+
+    parsePath: function(rawPath) {
+      /* Convert rawPath to Path node model */
+      return new NodeModel(rawPath);
     },
 
     updateNode: function(opts) {

@@ -12,21 +12,21 @@ define(function(require){
    
   var MainController = Marionette.Controller.extend({
 
-    initialize: function(opts){
+    initialize: function(opts) {
       this.region = opts.region;
     },
 
-    showView: function(viewType, viewModel, opts){
+    showView: function(opts) {
       var view;
       var fitScreen = false;
 
-      if (viewType === 'deck') {
-        view = ExerciseDeckRunnerFactory.createView(viewModel, opts);
+      if (opts.viewType === 'deck') {
+        view = ExerciseDeckRunnerFactory.createView(opts.model, opts.opts);
         fitScreen = true;
       }
-      else if (viewType === 'path') {
+      else if (opts.viewType === 'path') {
         var viewOpts = {id: 'content'};
-        view = PathViewFactory(viewModel, viewOpts);
+        view = PathViewFactory(opts.model, viewOpts);
       }
 
       $('body').toggleClass('fit-screen', fitScreen);

@@ -12,37 +12,40 @@ define(function(require){
     },
 
     showPathNode: function(pathId, nodePath) {
-      var nodeModel = this.pathRepository.getNode(
-        {pathId: pathId, nodePath: nodePath});
+      var _this = this;
+      this.pathRepository.getNode({pathId: pathId, nodePath: nodePath})
+      .then( function(node) {
+        var viewType = node.get('viewType');
 
-      var viewType = nodeModel.get('viewType');
+        var opts = {};
+        if (viewType === 'deck') {
+          // Create callback for deck submission.
+          opts.submissionHandler = function (result) {
+            _this.onDeckSubmit({result: result, node: node, pathId: pathId,
+              nodePath: nodePath});
+          };
 
-      var opts = {};
-      if (viewType === 'deck') {
-        // Create callback for deck submission.
-        opts.submissionHandler = _.bind(function (result) {
-          this.onDeckSubmit({result: result, node: nodeModel, pathId: pathId,
-            nodePath: nodePath});
-        }, this);
+          // Set destination.
+          opts.destination = Backbone.history.fragment.replace(/(.*)\/.*/, '$1');
+        }
 
-        // Set destination.
-        opts.destination = Backbone.history.fragment.replace(/(.*)\/.*/, '$1');
-      }
-
-      Musikata.app.mainController.showView(
-        nodeModel.get('viewType'), nodeModel, opts);
+        Musikata.app.mainController.showView({viewType: node.get('viewType'),
+          model: node, opts: opts});
+      });
     },
 
     onDeckSubmit: function(opts) {
+      var _this = this;
       var promise;
       
-      var nodeModel = this.pathRepository.getNode(
-        {pathId: opts.pathId, nodePath: opts.nodePath});
-
-      if (opts.result === 'pass'){
-        nodeModel.set('status', 'completed');
-        promise = this.pathRepository.updateNode({node: nodeModel});
-      }
+      this.pathRepository.getNode({pathId: opts.pathId,
+        nodePath: opts.nodePath})
+      .then(function(node) {
+        if (opts.result === 'pass'){
+          node.set('status', 'completed');
+          promise = _this.pathRepository.updateNode({node: node});
+        }
+      });
 
       return promise;
     },
