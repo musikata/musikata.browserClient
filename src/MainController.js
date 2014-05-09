@@ -7,7 +7,7 @@ define(function(require){
   var Marionette = require('marionette');
 
   var PathViewFactory = require('./paths/PathViewFactory');
-  var deckViewFactory = Injector.get('DeckViewFactory');
+  var ExerciseDeckRunnerFactory = Injector.get('ExerciseDeckRunnerFactory');
   
    
   var MainController = Marionette.Controller.extend({
@@ -16,12 +16,12 @@ define(function(require){
       this.region = opts.region;
     },
 
-    showView: function(viewType, viewModel){
+    showView: function(viewType, viewModel, opts){
       var view;
       var fitScreen = false;
 
       if (viewType === 'deck') {
-        view = deckViewFactory.createDeckView(viewModel);
+        view = ExerciseDeckRunnerFactory.createView(viewModel, opts);
         fitScreen = true;
       }
       else if (viewType === 'path') {
@@ -31,7 +31,8 @@ define(function(require){
 
       $('body').toggleClass('fit-screen', fitScreen);
       this.region.show(view);
-    },
+    }
+
   });
 
   return MainController;

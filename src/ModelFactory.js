@@ -1,5 +1,6 @@
 define(function(require){
   var _ = require('underscore');
+  var Backbone = require('backbone');
 
 
   var ModelFactory = function(injector){
@@ -7,10 +8,16 @@ define(function(require){
   };
 
   _.extend(ModelFactory.prototype, {
-    createModel: function(attrs, options){
+    createModel: function(opts){
+      var ModelClass;
+
       var defaults = { parse: true };
-      var ModelClass = this.injector.get(attrs.type + 'Model');
-      return new ModelClass(attrs, _.extend(defaults, options));
+      if (opts.modelType) {
+        ModelClass = this.injector.get(opts.modelType);
+      } else {
+        ModelClass = Backbone.Model;
+      }
+      return new ModelClass(opts.attrs, _.extend(defaults, opts.options));
     }
   });
 

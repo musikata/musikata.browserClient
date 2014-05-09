@@ -33,9 +33,10 @@ define(function(require){
       return new DeckModel(attrs, _.extend({modelFactory: $ModelFactory}, opts));
     }]);
 
-  // FeelTheBeatModel
+  // Exercise Models
   var ExerciseSlideModel = require('musikata.deck/ExerciseSlideModel');
-  Injector.set('FeelTheBeatModel', ExerciseSlideModel);
+  Injector.set('FeelTheBeatExerciseModel', ExerciseSlideModel);
+  Injector.set('ExerciseModel', ExerciseSlideModel);
 
   // ExerciseDeckRunnerModel
   var MusikataExerciseRunnerModel = require('musikata.deck/MusikataExerciseRunnerModel');
@@ -56,9 +57,13 @@ define(function(require){
       {viewFactory: $ViewFactory}, opts));
     }]);
 
-  // FeelTheBeatView
+  // DummyExercise
+  var DummyExerciseView = require('./DummyExerciseView');
+  Injector.set('DummyExercise', DummyExerciseView);
+
+  // FeelTheBeatExercise
   var FeelTheBeatView = require('musikata.feelTheBeat/FeelTheBeatExerciseView');
-  Injector.setAndInject('FeelTheBeatView', ['AudioManager', 
+  Injector.setAndInject('FeelTheBeatExecise', ['AudioManager', 
     function (opts, $AudioManager) {
       var mergedOpts = _.extend({audioManager: new $AudioManager()}, opts);
       return new FeelTheBeatView(mergedOpts);
@@ -96,9 +101,10 @@ define(function(require){
       return new AudioManager({audioContext: $AudioContext});
     }]);
 
-  // DeckViewFactory
-  var DeckViewFactory = require('./deck/DeckViewFactory');
-  Injector.set('DeckViewFactory', new DeckViewFactory(Injector));
+  // ExerciseRunnerFactory
+  var ExerciseDeckRunnerFactory = require('./deck/ExerciseDeckRunnerFactory');
+  Injector.set('ExerciseDeckRunnerFactory', 
+    new ExerciseDeckRunnerFactory(Injector));
 
   return Injector;
 

@@ -1,4 +1,6 @@
 define(function(require){
+  var _ = require("underscore");
+  var $ = require('jquery');
   var Marionette = require('marionette');
 
 
@@ -6,8 +8,63 @@ define(function(require){
 
     showPathNode: function(pathId, nodePath) {
       var nodeModel = this.getNodeData(pathId, nodePath);
+      var viewType = nodeModel.get('viewType');
+
+      var opts = {};
+      if (viewType === 'deck') {
+        // Create callback for deck submission.
+        opts.submissionHandler = _.bind(function (result) {
+          this.onDeckSubmit({
+            result: result,
+            node: nodeModel,
+            pathId: pathId,
+            nodePath: nodePath
+          });
+        }, this);
+      }
+
       Musikata.app.mainController.showView(
-        nodeModel.get('viewType'), nodeModel);
+        nodeModel.get('viewType'), nodeModel, opts);
+    },
+
+    onDeckSubmit : function(opts) {
+      var _this = this;
+      // @TODO
+      // FAKE IT FOR NOW
+      var dfd = new $.Deferred();
+      setTimeout(function () {
+        dfd.resolve();
+      }, 100);
+      return dfd;
+      
+      var nodeUpdates = {};
+      if (opts.result === 'pass'){
+        nodeUpdates['status'] = 'completed';
+      }
+
+      var userPath = Musikata.db.userPaths['testUser:testPath'];
+
+      // Get the node in the local user path.
+      var localNode = userPath.get('path').getNodeByPath(nodePath);
+
+      // Create node if it doesn't exist.
+      if (! localNode){
+        console.log("create UserPath node");
+        localNode = userPath.get('path').createNodeAtPath(nodePath, nodeUpdates);
+      }
+      // Otherwise update the node.
+      else {
+        console.log('update UserPath node');
+        localNode.set(nodeUpdates);
+      }
+
+      // Submit the updated user path to the persistence service.
+      var updateUserPromise = this.updateUserPath(userPath);
+      updateUserPromise.done(function(updatedUserPath){
+        // Update the normal path.
+        var path = Musikata.db.paths[updatedUserPath.get('path').get('id')];
+        _this.mergePathAndUserPath(path, updatedUserPath);
+      });
     },
 
     getNodeData: function(pathId, nodePath){

@@ -9,7 +9,7 @@ define(function(require){
   _.extend(ViewFactory.prototype, {
     createView: function(opts){
       var defaults = { viewFactory: this };
-      var ViewClass = this.injector.get(opts.model.get('type') + 'View');
+      var ViewClass = this.injector.get(opts.model.get('type'));
       return new ViewClass(_.extend(defaults, opts));
     }
   });

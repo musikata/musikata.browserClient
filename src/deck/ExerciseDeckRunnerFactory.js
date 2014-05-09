@@ -3,16 +3,16 @@ define(function(require){
   var Marionette = require('marionette');
 
 
-  var DeckViewFactory = function(injector) {
+  var ExerciseDeckRunnerFactory = function(injector) {
     this.injector = injector;
   };
 
-  _.extend(DeckViewFactory.prototype, {
+  _.extend(ExerciseDeckRunnerFactory.prototype, {
 
-    createDeckView: function(deckData) {
+    createView: function(deckData, opts) {
       var runnerModel = this.createRunnerModel(deckData);
       var runnerView = this.createRunnerView(runnerModel);
-      this.bindToRunnerView(runnerView);
+      this.bindToRunnerView(runnerView, opts);
       return runnerView;
     },
 
@@ -21,7 +21,8 @@ define(function(require){
       // But for now hardcoded.
       var introSlides = [];
       var exerciseSlides = [
-        {type: 'FeelTheBeat', bpm: 90, length: 4, threshold: .4, maxFailedBeats: 1},
+        //{modelType: 'FeelTheBeatExerciseModel', bpm: 90, length: 4, threshold: .4, maxFailedBeats: 1},
+        {modelType: 'ExerciseModel', type: 'DummyExercise'}
       ];
 
       // Setup nested deck models.
@@ -54,7 +55,7 @@ define(function(require){
       return runnerView;
     },
 
-    bindToRunnerView: function (runnerView) {
+    bindToRunnerView: function (runnerView, opts) {
 
       // Bind to runner navigation events.
       runnerView.on('navigate', function(route){
@@ -75,44 +76,22 @@ define(function(require){
 
       // Bind to runner submission event.
       runnerView.on('submit', function(){
-        this.onRunnerSubmission(runnerView);
+        this.onRunnerSubmission(runnerView, opts);
       }, this);
     },
 
-    onRunnerSubmission: function(runnerView){
-      // Set attributes to update on UserPath node.
+    onRunnerSubmission: function(runnerView, opts){
+      var submissionPromise;
+
       var submissionResult = runnerView.model.get('result');
-      var nodeUpdates = {};
-      if (submissionResult === 'pass'){
-        nodeUpdates['status'] = 'completed';
+      if (opts.submissionHandler) {
+        submissionPromsie = opts.submissionHandler(submissionResult);
       }
-
-      var userPath = Musikata.db.userPaths['testUser:testPath'];
-
-      // Get the node in the local user path.
-      var localNode = userPath.get('path').getNodeByPath(nodePath);
-      // Create node if it doesn't exist.
-      if (! localNode){
-        console.log("create UserPath node");
-        localNode = userPath.get('path').createNodeAtPath(nodePath, nodeUpdates);
-      }
-      // Otherwise update the node.
-      else {
-        console.log('update UserPath node');
-        localNode.set(nodeUpdates);
-      }
-
-      // Submit the updated user path to the persistence service.
-      var updateUserPromise = _this.updateUserPath(userPath);
-      updateUserPromise.done(function(updatedUserPath){
-        // Update the normal path.
-        var path = Musikata.db.paths[updatedUserPath.get('path').get('id')];
-        _this.mergePathAndUserPath(path, updatedUserPath);
-
-        feelTheBeatApp.runnerView.showOutroView();
+      $.when(submissionPromise).then(function () {
+        runnerView.showOutroView();
       });
     }
   });
 
-  return DeckViewFactory;
+  return ExerciseDeckRunnerFactory;
 });
