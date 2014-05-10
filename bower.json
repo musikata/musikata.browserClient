@@ -28,6 +28,7 @@
     "infect": "~0.4.0"
   },
   "devDependencies": {
-    "requirejs": "~2.1.11"
+    "requirejs": "~2.1.11",
+    "pouchdb-nightly.min": "http://download.pouchdb.com/pouchdb-nightly.min.js"
   }
 }

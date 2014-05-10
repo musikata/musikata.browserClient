@@ -9,7 +9,8 @@ require.config({
     'backbone.babysitter': 'bower_components/backbone.babysitter/lib/amd/backbone.babysitter',
     handlebars: 'bower_components/handlebars/handlebars',
     'backbone.stickit': 'bower_components/backbone.stickit/backbone.stickit',
-    'infect': 'bower_components/infect/infect'
+    'infect': 'bower_components/infect/infect',
+    'pouchdb': 'bower_components/pouchdb-nightly.min/index'
   },
 
   packages: [

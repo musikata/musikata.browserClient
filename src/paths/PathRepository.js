@@ -3,8 +3,8 @@ define(function(require){
   var $ = require('jquery');
   var Marionette = require('marionette');
 
-  var NodeModel = require('musikata.path/NodeModel');
-  var LocalStorageBackend = require('./LocalStorageBackend');
+  var UserPathModel = require('./UserPathModel');
+  var PouchDbUserPathBackend = require('./PouchDbUserPathBackend');
 
 
   var PathRepository = Marionette.Controller.extend({
@@ -20,92 +20,80 @@ define(function(require){
     },
 
     getBackend: function () {
-      return new LocalStorageBackend({storageKey: 'musikata.paths', 
-        entityType: ['path']});
+      return new PouchDbUserPathBackend();
     },
 
-    getNode: function(opts) {
+    getUserPathNode: function(opts) {
+      /* Asynchronously get individual user path node. Returns node model. */
+      console.log('getUserPathNode');
       var dfd = new $.Deferred();
-      this.getPath({pathId: opts.pathId})
-      .then(function(path) {
-        dfd.resolve(path.getNodeByPath(opts.nodePath));
+      this.getUserPath({userId: opts.userId, pathId: opts.pathId})
+      .then(function(userPath) {
+        dfd.resolve(userPath.getNodeByXPath(opts.nodeXPath));
       });
       return dfd.promise();
     },
 
-    getPath: function(opts){
+    getUserPath: function(opts){
       /* Asynchronously get path. Returns path model. */
+      console.log('geUserPath');
       var dfd = new $.Deferred();
 
-      // Return cached path if it exists.
-      var cachedPath = _.has(this._cache.paths, opts.pathId);
+      var userPathId = this.getUserPathId({userId: opts.userId, 
+        pathId: opts.pathId});
+
+      // Fetch path if not cached.
+      var cachedPath = this._cache.paths[userPathId];
       if (cachedPath) {
         dfd.resolve(cachedPath);
         return dfd.promise();
       }
 
-      // Otherwise pull data and convert to model.
+      // Otherwise pull data, convert to model, and cache it.
       var _this = this;
-      this.fetchRawPath(opts.pathId)
-      .then(function (rawPath) {
-        dfd.resolve(_this.parsePath(rawPath));
+      this.fetchRawUserPath(userPathId)
+      .then(function (rawUserPath) {
+        var userPath = _this.parseUserPath(rawUserPath);
+        _this._cache.paths[userPathId] = userPath;
+        dfd.resolve(userPath);
       });
 
       return dfd.promise();
     },
 
-    fetchRawPath: function(pathId) {
-      return this.backend.get({entity: 'path', id: pathId})
+    putSerializedUserPath: function(serializedUserPath) {
+      console.log('putSerializedUserPath', serializedUserPath);
+      return this.backend.putUserPath(serializedUserPath);
     },
 
-    parsePath: function(rawPath) {
+    getUserPathId: function(opts) {
+      return [opts.userId, opts.pathId].join(':');
+    },
+
+    fetchRawUserPath: function(userPathId) {
+      console.log('fetchRawUserPath');
+      return this.backend.getUserPath({id: userPathId});
+    },
+
+    parseUserPath: function(rawUserPath) {
       /* Convert rawPath to Path node model */
-      return new NodeModel(rawPath);
+      return new UserPathModel(rawUserPath);
     },
 
-    updateNode: function(opts) {
-      console.log('update node');
+    updateUserPathNode: function(opts) {
+      console.log('updateUserPathNode', opts);
+      var serializedUserPathNode = this.serializeUserPathNode(opts.node);
+      var userPathId = this.getUserPathId(opts);
+      return this.backend.putUserPathNode({userPathId: userPathId, 
+        nodeXPath: opts.nodeXPath, node: serializedUserPathNode});
     },
 
-    updateUserPath: function(userPath){
-      console.log('updateUserPath');
-      var updateDeferred = new $.Deferred();
-      // @TODO: Here we would submit the path to the persistence service.
-      // For now, we fake a service call.
-      var serviceDeferred = new $.Deferred();
-      setTimeout(function() {
-        // @TODO:
-        // Eventually this would be a json object, from the 
-        // persistence service. But for now, we fake it and just
-        // pass backbone model.
-        var updatedUserPath = userPath;
-        serviceDeferred.resolve(updatedUserPath);
-      }, 50);
-
-      // Handle the result from the service.
-      // @TODO: normally this would be json object, but for now
-      // we fake it and receive backbone model.
-      serviceDeferred.done(function(updatedUserPath){
-        var userPathId = [updatedUserPath.get('userId'), userPath.get('path').get('id')].join(':');
-        Musikata.db.userPaths[userPathId] = updatedUserPath;
-        // Resolve the update deferred to finish.
-        updateDeferred.resolve(updatedUserPath);
-      });
-
-      return updateDeferred.promise();
-    },
-
-    mergePathAndUserPath: function(path, userPath){
-      console.log('mergePathAndUserPath', path, userPath);
-      userPath.get('path').visitNodes(function(nodePath, userPathNode){
-        if (userPathNode.get('status') === 'completed'){
-          var pathNode = path.getNodeByPath(nodePath);
-          if (pathNode) {
-            pathNode.set('status', 'completed');
-          }
-        }
-      });
+    serializeUserPathNode: function(node) {
+      var serializedNode = node.toJSON();
+      delete serializedNode['children'];
+      return serializedNode;
     }
+
   });
 
   return PathRepository;

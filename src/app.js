@@ -13,15 +13,11 @@ define(function(require){
   var PathsRouter = require('./paths/PathsRouter');
   
 
-  // @TODO: testing w/ hardcoded data. Take this out later.
-  setupData();
-
   // Create the app object.
   var app = new Marionette.Application();
 
   // Add regions.
   app.addInitializer(function(options){
-    console.log(options);
     app.addRegions({
       content: options.contentRegion
     });
@@ -50,10 +46,15 @@ define(function(require){
     app.pathsRouter = Injector.get('PathsRouter')();
   });
 
-  // Start Backbone history to kick off routing.
+  // Setup data and start Backbone history to kick off routing.
   app.on("initialize:after", function(options){
-    Backbone.history.start({
-      root: window.location.pathname
+    // @TODO: testing w/ hardcoded data. Take this out later.
+    setupData().then(function() {;
+      Backbone.history.start({
+        root: window.location.pathname
+      });
+    }).fail(function (err) {
+      console.log("error: ", err);
     });
   });
 

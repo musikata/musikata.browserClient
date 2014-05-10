@@ -11,11 +11,14 @@ define(function(require){
       Marionette.Controller.apply(this);
     },
 
-    showPathNode: function(pathId, nodePath) {
+    showPathNode: function(pathId, nodeXPath) {
       /* Show vide for node by dispatching on view type */
+      console.log('spn');
       var _this = this;
-      this.pathRepository.getNode({pathId: pathId, nodePath: nodePath})
-      .then( function(node) {
+      this.pathRepository.getUserPathNode({userId: 'testUser', pathId: pathId,
+        nodeXPath: nodeXPath})
+      .then(function(node) {
+        console.log('n is: ', node);
         var viewType = node.get('viewType');
 
         var opts = {};
@@ -23,7 +26,7 @@ define(function(require){
           // Create callback for deck submission.
           opts.submissionHandler = function (result) {
             _this.onDeckSubmit({result: result, node: node, pathId: pathId,
-              nodePath: nodePath});
+              nodeXPath: nodeXPath});
           };
 
           // Set destination to be parent node.
@@ -40,12 +43,14 @@ define(function(require){
       var _this = this;
       var promise;
       
-      this.pathRepository.getNode({pathId: opts.pathId,
-        nodePath: opts.nodePath})
+      this.pathRepository.getUserPathNode({userId: 'testUser', 
+        pathId: opts.pathId, nodeXPath: opts.nodeXPath})
       .then(function(node) {
         if (opts.result === 'pass'){
           node.set('status', 'completed');
-          promise = _this.pathRepository.updateNode({node: node});
+          promise = _this.pathRepository.updateUserPathNode({
+            userId: 'testUser', pathId: opts.pathId, nodeXPath: opts.nodeXPath,
+            node: node});
         }
       });
 
