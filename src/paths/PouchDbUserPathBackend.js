@@ -4,26 +4,26 @@ define(function(require) {
   var PouchDB = require('pouchdb');
 
 
-  var PouchDbUserPathBackend = function() {
-    var dbId = 'UserPathNodes';
-    PouchDB.destroy(dbId);
-    this._db = new PouchDB(dbId);
+  var PouchDbUserPathBackend = function(opts) {
+    opts = opts || {};
+    this.dbId = 'UserPathNodes';
+    if (opts.replace) {
+      PouchDB.destroy(this.dbId);
+    }
+    this._db = new PouchDB(this.dbId);
   };
 
   _.extend(PouchDbUserPathBackend.prototype, {
+
+    destroyDb: function() {
+    },
 
     _getUserPathNodeId: function(opts) {
       return [opts.userId, opts.pathId, opts.nodeXPath].join(':');
     },
 
-    getUserPathNode: function(opts) {
-      var _id = this._getUserPathNodeId(opts);
-      return this._db.get(_id);
-    },
-
     putUserPathNode: function(opts) {
-      var _id = this._getUserPathNodeId(opts);
-      this._db.put(opts.node, _id);
+      this._db.put(opts.node);
     },
 
     getUserPath: function(opts) {

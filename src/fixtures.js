@@ -39,7 +39,7 @@ define(function(require) {
               {
                 id: "node_4", 
                 title: "Node 4",
-                viewType: "foo",
+                viewType: "deck",
                 nodeType: "deck"
               },
             ]

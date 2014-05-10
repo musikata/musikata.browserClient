@@ -46,16 +46,20 @@ define(function(require){
     app.pathsRouter = Injector.get('PathsRouter')();
   });
 
-  // Setup data and start Backbone history to kick off routing.
+  // Start Backbone history to kick off routing.
   app.on("initialize:after", function(options){
     // @TODO: testing w/ hardcoded data. Take this out later.
-    setupData().then(function() {;
-      Backbone.history.start({
-        root: window.location.pathname
-      });
-    }).fail(function (err) {
+    Backbone.history.start({
+      root: window.location.pathname
     });
   });
+
+  // Add convenience func for refreshing db.
+  window.mkSetupData = function() {
+    setupData().fail(function (err) {
+      console.log("error: ", err, err.stack);
+    });
+  }
 
   return app;
 

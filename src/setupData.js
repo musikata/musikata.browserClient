@@ -2,7 +2,7 @@ define(function(require){
   var _ = require('underscore');
   var $ = require('jquery');
     
-  var PathRepository = require('./paths/PathRepository');
+  var PouchDbUserPathBackend = require('./paths/PouchDbUserPathBackend');
   var fixtures = require('./fixtures');
 
 
@@ -13,9 +13,9 @@ define(function(require){
 
   var setupPaths = function(){
     var promises = [];
-    var pathRepository = new PathRepository();
+    var pathBackend = new PouchDbUserPathBackend({replace: true});
     _.each(fixtures.rawUserPaths, function(rawUserPath, userPathId) {
-      promises.push(pathRepository.putSerializedUserPath(rawUserPath));
+      promises.push(pathBackend.putUserPath(rawUserPath));
     });
     return $.when.apply($, promises);
   };
