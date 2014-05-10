@@ -65,10 +65,8 @@ define(function(require){
           Backbone.history.navigate(opts.destination, {trigger: true});
         }
         else if (route === 'feedback'){
-          console.log('goToFeedback');
         }
         else if (route === 'tryAgain'){
-          console.log('tryAgain');
           Backbone.history.loadUrl( Backbone.history.fragment );
         }
       });

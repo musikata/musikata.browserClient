@@ -28,7 +28,6 @@ define(function(require) {
 
     getUserPath: function(opts) {
       /* Assemble UserPath from component nodes */
-      console.log('getUserPath');
       var dfd = new $.Deferred();
 
       var idParts = opts.id.split(':');
@@ -63,7 +62,6 @@ define(function(require) {
         dfd.resolve(userPath);
         return;
       }).catch(function (err) {
-        console.log("e is: ", err.stack);
         dfd.reject(err);
         return;
       });
@@ -73,7 +71,6 @@ define(function(require) {
 
     putUserPath: function(userPath) {
       /* Break down path into component nodes */
-      console.log('putUserPath', userPath);
       var dfd = new $.Deferred();
       var processedNodes = [];
 

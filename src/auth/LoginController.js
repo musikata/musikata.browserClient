@@ -7,7 +7,6 @@ define(function(require){
 
   var LoginController = Marionette.Controller.extend({
     postLoginCredentials: function(credentials, loginView){
-      console.log('postLoginCredentials', credentials);
       // Fake login service for now.
       // @TODO: replace this w/ service, or event.
       var loginDeferred = new $.Deferred();
@@ -17,9 +16,7 @@ define(function(require){
           loginResult = {
             status: 'sucess'
           };
-          console.log('login success');
           Musikata.session = data.session;
-          console.log('show dojo home');
           Backbone.history.navigate('dojo', true);
         }
         else {
@@ -62,7 +59,6 @@ define(function(require){
       // Check for authenticated session.
       if (Musikata && Musikata.session) {
         // Show main view.
-        console.log('show main view');
       }
       else {
         // Show login view.

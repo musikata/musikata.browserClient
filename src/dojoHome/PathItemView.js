@@ -10,7 +10,6 @@ define(function(require){
     className: 'path-item',
     template: Handlebars.compile(PathItemViewTemplate),
     templateHelpers: function(){
-      console.log(this.model);
       return {
         title: this.model.get('title') || 'untitled',
         url: Backbone.history.root + '#/path/' + this.model.id + '/'

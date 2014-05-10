@@ -13,12 +13,10 @@ define(function(require){
 
     showPathNode: function(pathId, nodeXPath) {
       /* Show vide for node by dispatching on view type */
-      console.log('spn');
       var _this = this;
       this.pathRepository.getUserPathNode({userId: 'testUser', pathId: pathId,
         nodeXPath: nodeXPath})
       .then(function(node) {
-        console.log('n is: ', node);
         var viewType = node.get('viewType');
 
         var opts = {};

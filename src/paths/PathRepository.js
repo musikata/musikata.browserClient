@@ -25,7 +25,6 @@ define(function(require){
 
     getUserPathNode: function(opts) {
       /* Asynchronously get individual user path node. Returns node model. */
-      console.log('getUserPathNode');
       var dfd = new $.Deferred();
       this.getUserPath({userId: opts.userId, pathId: opts.pathId})
       .then(function(userPath) {
@@ -36,7 +35,6 @@ define(function(require){
 
     getUserPath: function(opts){
       /* Asynchronously get path. Returns path model. */
-      console.log('geUserPath');
       var dfd = new $.Deferred();
 
       var userPathId = this.getUserPathId({userId: opts.userId, 
@@ -62,7 +60,6 @@ define(function(require){
     },
 
     putSerializedUserPath: function(serializedUserPath) {
-      console.log('putSerializedUserPath', serializedUserPath);
       return this.backend.putUserPath(serializedUserPath);
     },
 
@@ -71,7 +68,6 @@ define(function(require){
     },
 
     fetchRawUserPath: function(userPathId) {
-      console.log('fetchRawUserPath');
       return this.backend.getUserPath({id: userPathId});
     },
 
@@ -81,7 +77,6 @@ define(function(require){
     },
 
     updateUserPathNode: function(opts) {
-      console.log('updateUserPathNode', opts);
       var serializedUserPathNode = this.serializeUserPathNode(opts.node);
       var userPathId = this.getUserPathId(opts);
       return this.backend.putUserPathNode({userPathId: userPathId, 

@@ -54,7 +54,6 @@ define(function(require){
         root: window.location.pathname
       });
     }).fail(function (err) {
-      console.log("error: ", err);
     });
   });
 
