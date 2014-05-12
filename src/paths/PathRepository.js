@@ -29,7 +29,9 @@ define(function(require){
       this.getUserPath({userId: opts.userId, pathId: opts.pathId})
       .then(function(userPath) {
         dfd.resolve(userPath.getNodeByXPath(opts.nodeXPath));
-      });
+      })
+      .fail(dfd.reject);
+
       return dfd.promise();
     },
 
@@ -54,7 +56,8 @@ define(function(require){
         var userPath = _this.parseUserPath(rawUserPath);
         _this._cache.paths[userPathId] = userPath;
         dfd.resolve(userPath);
-      });
+      })
+      .fail(dfd.reject);
 
       return dfd.promise();
     },

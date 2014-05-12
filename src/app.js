@@ -54,12 +54,35 @@ define(function(require){
     });
   });
 
+
   // Add convenience func for refreshing db.
   window.mkSetupData = function() {
     setupData().fail(function (err) {
       console.log("error: ", err, err.stack);
     });
   }
+
+  window.loadTestPath = function (pathId) {
+    require(['./testPaths/' + pathId], function(testPath) {
+      var pathBackend = Injector.get('LocalPathBackend');
+
+      pathBackend.putUserPath({
+        userId: 'testUser',
+        path: testPath
+      })
+      .then(function () {
+        console.log("loaded '" + pathId + "'.");
+      })
+      .fail(function (err) {
+        console.log("e: ", err, err.stack);
+      });
+    });
+  }
+
+  window.truncatePathDb = function() {
+    var pathBackend = Injector.get('LocalPathBackend');
+    pathBackend.truncateDb();
+  };
 
   return app;
 

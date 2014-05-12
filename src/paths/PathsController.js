@@ -14,6 +14,8 @@ define(function(require){
     showPathNode: function(pathId, nodeXPath) {
       /* Show vide for node by dispatching on view type */
       var _this = this;
+      nodeXPath = nodeXPath || '/';
+
       this.pathRepository.getUserPathNode({userId: 'testUser', pathId: pathId,
         nodeXPath: nodeXPath})
       .then(function(node) {
@@ -33,6 +35,9 @@ define(function(require){
 
         Musikata.app.mainController.showView({viewType: node.get('viewType'),
           model: node, opts: opts});
+      })
+      .fail(function (err) {
+        console.log("error: ", err) 
       });
     },
 

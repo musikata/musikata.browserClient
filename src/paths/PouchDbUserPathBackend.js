@@ -8,14 +8,16 @@ define(function(require) {
     opts = opts || {};
     this.dbId = 'UserPathNodes';
     if (opts.replace) {
-      PouchDB.destroy(this.dbId);
+      this.truncateDb();
     }
     this._db = new PouchDB(this.dbId);
   };
 
   _.extend(PouchDbUserPathBackend.prototype, {
 
-    destroyDb: function() {
+    truncateDb: function() {
+      PouchDB.destroy(this.dbId);
+      this._db = new PouchDB(this.dbId);
     },
 
     _getUserPathNodeId: function(opts) {
@@ -23,7 +25,29 @@ define(function(require) {
     },
 
     putUserPathNode: function(opts) {
-      this._db.put(opts.node);
+      return this._db.put(opts.node);
+    },
+
+    getUserPathNodes: function(opts) {
+      var dfd = new $.Deferred();
+
+      var userId = opts.userId;
+      var pathId = opts.pathId;
+
+      this._db.allDocs({include_docs: true}).then(function (result) {
+
+        var nodes = [];
+        _.each(result.rows, function(row) {
+          var node = row.doc;
+          if ((node.userId === userId) && (node.pathId === pathId)){
+            nodes.push(row.doc);
+          }
+        });
+
+        dfd.resolve(nodes);
+      }).catch(dfd.reject);
+
+      return dfd.promise();
     },
 
     getUserPath: function(opts) {
@@ -34,37 +58,32 @@ define(function(require) {
       var userId = idParts[0];
       var pathId = idParts[1];
 
-      this._db.allDocs({include_docs: true}).then(function (result) {
-        var nodes = [];
+      this.getUserPathNodes({userId: userId, pathId: pathId})
+      .then(function (nodes) {
+        try{
+          var sortedNodes = _.sortBy(nodes, 'xPath');
 
-        _.each(result.rows, function(row) {
-          nodes.push(row.doc);
-        });
+          // Initialize path tree lookup with root node.
+          var rootNode = sortedNodes[0];
+          rootNode.children = [];
+          var xPathLookup = {'/': rootNode};
 
-        var sortedNodes = _.sortBy(nodes, 'xPath');
+          // Iteratively add component nodes to tree.
+          for (var i=1; i < sortedNodes.length; i++) {
+            var node = sortedNodes[i];
+            var parentXPath = node.xPath.replace(/(.*)\/.*/, '$1') || '/';
+            var parentNode = xPathLookup[parentXPath];
+            parentNode.children.push(node);
+            node.children = [];
+            xPathLookup[node.xPath] = node;
+          }
 
-        // Initialize path tree lookup with root node.
-        var rootNode = sortedNodes[0];
-        rootNode.children = [];
-        var xPathLookup = {'/': rootNode};
+          var userPath = {userId: userId, path: rootNode};
+          dfd.resolve(userPath);
 
-        // Iteratively add component nodes to tree.
-        for (var i=1; i < sortedNodes.length; i++) {
-          var node = sortedNodes[i];
-          var parentXPath = node.xPath.replace(/(.*)\/.*/, '$1') || '/';
-          var parentNode = xPathLookup[parentXPath];
-          parentNode.children.push(node);
-          node.children = [];
-          xPathLookup[node.xPath] = node;
-        }
+        } catch (err) { dfd.reject(err) }
 
-        var userPath = {userId: userId, path: rootNode};
-        dfd.resolve(userPath);
-        return;
-      }).catch(function (err) {
-        dfd.reject(err);
-        return;
-      });
+      }).fail(dfd.reject);
 
       return dfd.promise();
     },
@@ -76,7 +95,7 @@ define(function(require) {
 
       // Queue up root node first.
       var rootNode = userPath.path;
-      rootNode.xPath = '';
+      rootNode.xPath = '/';
       var queuedNodes = [rootNode];
 
       // Iteratively process child nodes.
@@ -84,20 +103,49 @@ define(function(require) {
         var node = queuedNodes.pop();
         if (node.children) {
           node.children.forEach(function (childNode, idx) {
-            childNode.xPath = [node.xPath, idx].join('/');
+            if (node.xPath === '/') {
+              childNode.xPath = '/' + idx;
+            } else {
+              childNode.xPath = [node.xPath, idx].join('/');
+            }
             queuedNodes.push(childNode);
           });
         }
         node.pathId = rootNode.id;
         node.userId = userPath.userId;
+        node._id = this._getUserPathNodeId({userId: userPath.userId, 
+          nodeXPath: node.xPath, pathId: node.pathId});
         processedNodes.push(node);
       }
       rootNode.xPath = '/';
 
-      this._db.bulkDocs({docs: processedNodes}).then(dfd.resolve).catch(dfd.fail);
+      this._db.bulkDocs({docs: processedNodes})
+      .then(dfd.resolve).catch(dfd.reject);
 
       return dfd.promise();
-    }
+    },
+
+    deleteUserPath: function(opts) {
+      var _this = this;
+      var dfd = new $.Deferred();
+
+      var idParts = opts.id.split(':');
+      var userId = idParts[0];
+      var pathId = idParts[1];
+
+      this.getUserPathNodes({userId: userId, pathId: pathId})
+      .then(function (nodes) {
+        _.each(nodes, function (node) {
+          node._deleted = true;
+        });
+
+        _this._db.bulkDocs({docs: nodes})
+        .then(dfd.resolve).catch(dfd.reject);
+
+      }).fail(dfd.reject);
+
+      return dfd.promise();
+    },
   });
 
   return PouchDbUserPathBackend;

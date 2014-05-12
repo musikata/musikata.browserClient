@@ -123,6 +123,9 @@ define(function(require){
       return new PathsRouter({controller: $PathsController()});
     }]);
 
+  var PouchDbUserPathBackend = require('./paths/PouchDbUserPathBackend');
+  Injector.set('LocalPathBackend', new PouchDbUserPathBackend());
+
 
   return Injector;
 

@@ -4,7 +4,7 @@ define(function(require){
 
   var PathsRouter = Marionette.AppRouter.extend({
     appRoutes: {
-      "path/:pathId/*nodePath": "showPathNode",
+      "path/:pathId/*nodeXPath": "showPathNode",
     }
   });
 
