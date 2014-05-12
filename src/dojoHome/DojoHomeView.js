@@ -7,6 +7,7 @@ define(function(require){
   
   var DojoHomeViewTemplate = require('text!./templates/DojoHomeView.html')
 
+
   var DojoHomeView = Marionette.Layout.extend({
     className: 'dojo-home',
     template: Handlebars.compile(DojoHomeViewTemplate),

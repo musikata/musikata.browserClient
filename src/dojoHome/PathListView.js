@@ -8,9 +8,7 @@ define(function(require){
     className: 'path-list',
     tagName: 'ul',
     itemView: PathItemView,
-    itemViewOptions: {
-      tagName: 'li'
-    },
+    itemViewOptions: { tagName: 'li' },
   });
 
   return PathListView;

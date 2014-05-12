@@ -1,4 +1,5 @@
 define(function(require){
+  var $ = require('jquery');
   var Marionette = require('marionette');
   var Backbone = require('backbone');
 
@@ -13,20 +14,38 @@ define(function(require){
     },
 
     showDojoHome: function(){
-      var pathsCollection = new Backbone.Collection();
-      _.each(Musikata.db.paths, function(pathModel){
-        pathsCollection.add(pathModel);
+      var dfd = new $.Deferred();
+
+      this.getUserPaths({userId: 'testUser'})
+      .then( function (userPaths) {
+        var pathsCollection = new Backbone.Collection();
+
+        _.each(userPaths, function(userPathModel) {
+          pathsCollection.add(userPathModel);
+        });
+
+        var dojoHomeModel = new Backbone.Model({paths: pathsCollection});
+
+        Musikata.app.mainController.showView({
+          viewType: 'DojoHomeView',
+          model: dojoHomeModel
+        });
+      })
+      .fail(function (err) {
+        console.log(err, err.stack);
+        dfd.reject(err);
       });
 
-      var dojoHomeView = new DojoHomeView({
-        model: new Backbone.Model({
-          paths: pathsCollection
-        })
-      });
-      app.content.show(dojoHomeView);
+      return dfd.promise();
     },
 
-    getUserPaths: function () {
+    getUserPaths: function (opts) {
+      var dfd = new $.Deferred();
+      this.pathRepository.getUserPathsForUser(opts)
+      .then(dfd.resolve)
+      .fail(dfd.reject);
+
+      return dfd.promise();
     }
 
   });

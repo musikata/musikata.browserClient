@@ -8,6 +8,7 @@ define(function(require){
 
   var PathViewFactory = require('./paths/PathViewFactory');
   var ExerciseDeckRunnerFactory = Injector.get('ExerciseDeckRunnerFactory');
+  var DojoHomeView = require('./dojoHome/DojoHomeView');
   
    
   var MainController = Marionette.Controller.extend({
@@ -27,6 +28,9 @@ define(function(require){
       else if (opts.viewType === 'PathView') {
         var viewOpts = {id: 'content'};
         view = PathViewFactory(opts.model, viewOpts);
+      }
+      else if (opts.viewType === 'DojoHomeView') {
+        var view = new DojoHomeView(opts);
       }
 
       $('body').toggleClass('fit-screen', fitScreen);

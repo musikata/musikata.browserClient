@@ -90,6 +90,20 @@ define(function(require){
       var serializedNode = node.toJSON();
       delete serializedNode['children'];
       return serializedNode;
+    },
+
+    getUserPathsForUser: function(opts) {
+      var _this = this;
+      var dfd = new $.Deferred();
+
+      this.backend.getUserPathsForUser(opts)
+      .then(function (rawUserPaths ) {
+        var userPaths = _.map(rawUserPaths, _this.parseUserPath);
+        dfd.resolve(userPaths);
+      })
+      .fail(dfd.reject);
+
+      return dfd.promise();
     }
 
   });

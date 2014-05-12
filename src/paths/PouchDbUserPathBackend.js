@@ -31,17 +31,23 @@ define(function(require) {
     getUserPathNodes: function(opts) {
       var dfd = new $.Deferred();
 
-      var userId = opts.userId;
-      var pathId = opts.pathId;
+      var filterAttrs = ['userId', 'pathId', 'xPath'];
 
       this._db.allDocs({include_docs: true}).then(function (result) {
 
         var nodes = [];
         _.each(result.rows, function(row) {
           var node = row.doc;
-          if ((node.userId === userId) && (node.pathId === pathId)){
-            nodes.push(row.doc);
+
+          // Filter nodes per options.
+          for (var i=0; i < filterAttrs.length; i++) {
+            var filterAttr = filterAttrs[i];
+            var filterValue = opts[filterAttr];
+            var hasFilter = ! _.isUndefined(filterValue);
+            if (hasFilter && (node[filterAttr] !== filterValue)) { return; }
           }
+
+          nodes.push(node);
         });
 
         dfd.resolve(nodes);
@@ -146,6 +152,17 @@ define(function(require) {
 
       return dfd.promise();
     },
+
+    getUserPathsForUser: function(opts) {
+      var dfd = new $.Deferred();
+
+      this.getUserPathNodes({userId: opts.userId, xPath: '/'})
+      .then(dfd.resolve)
+      .fail(dfd.reject);
+
+      return dfd.promise();
+    }
+
   });
 
   return PouchDbUserPathBackend;
