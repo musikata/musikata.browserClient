@@ -7,6 +7,11 @@ define(function(require){
 
   var DojoHomeController = Marionette.Controller.extend({ 
 
+    constructor: function(pathRepository){
+      this.pathRepository = pathRepository;
+      Marionette.Controller.apply(this);
+    },
+
     showDojoHome: function(){
       var pathsCollection = new Backbone.Collection();
       _.each(Musikata.db.paths, function(pathModel){
@@ -19,6 +24,9 @@ define(function(require){
         })
       });
       app.content.show(dojoHomeView);
+    },
+
+    getUserPaths: function () {
     }
 
   });

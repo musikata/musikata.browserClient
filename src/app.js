@@ -9,9 +9,6 @@ define(function(require){
   var LoginController = require('./auth/LoginController');
   var MainController = require('./MainController');
 
-  var DojoHomeRouter = require('./dojoHome/DojoHomeRouter');
-  var PathsRouter = require('./paths/PathsRouter');
-  
 
   // Create the app object.
   var app = new Marionette.Application();
@@ -33,7 +30,7 @@ define(function(require){
 
   // Set up Dojo home routes.
   app.addInitializer(function(options){
-    var dojoHomeRouter = new DojoHomeRouter();
+    app.dojoHomeRouter = Injector.get('DojoHomeRouter')();
   });
 
   // @TODO: add this back in.

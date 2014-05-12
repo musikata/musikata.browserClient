@@ -127,6 +127,20 @@ define(function(require){
   Injector.set('LocalPathBackend', new PouchDbUserPathBackend());
 
 
+  // Dojo Home
+  var DojoHomeController = require('./dojoHome/DojoHomeController');
+  Injector.setAndInject('DojoHomeController', ['PathRepository',
+    function($PathRepository) {
+      return new DojoHomeController($PathRepository);
+    }]);
+
+  var DojoHomeRouter = require('./dojoHome/DojoHomeRouter');
+  Injector.setAndInject('DojoHomeRouter', ['DojoHomeController',
+    function($DojoHomeController) {
+      return new DojoHomeRouter({controller: $DojoHomeController()});
+    }]);
+
+
   return Injector;
 
 });
