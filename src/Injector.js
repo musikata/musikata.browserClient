@@ -36,7 +36,7 @@ define(function(require){
   // Exercise Models
   var ExerciseSlideModel = require('musikata.deck/ExerciseSlideModel');
   Injector.set('FeelTheBeatExerciseModel', ExerciseSlideModel);
-  Injector.set('ExerciseModel', ExerciseSlideModel);
+  Injector.set('ExerciseSlideModel', ExerciseSlideModel);
 
   // ExerciseDeckRunnerModel
   var MusikataExerciseRunnerModel = require('musikata.deck/MusikataExerciseRunnerModel');
@@ -62,11 +62,11 @@ define(function(require){
   Injector.set('DummyExercise', DummyExerciseView);
 
   // FeelTheBeatExercise
-  var FeelTheBeatView = require('musikata.feelTheBeat/FeelTheBeatExerciseView');
-  Injector.setAndInject('FeelTheBeatExecise', ['AudioManager', 
+  var FeelTheBeatViewExerciseView = require('musikata.feelTheBeat/FeelTheBeatExerciseView');
+  Injector.setAndInject('FeelTheBeatExerciseView', ['AudioManager', 
     function (opts, $AudioManager) {
       var mergedOpts = _.extend({audioManager: new $AudioManager()}, opts);
-      return new FeelTheBeatView(mergedOpts);
+      return new FeelTheBeatViewExerciseView(mergedOpts);
     }]);
 
   // ExerciseSlideView

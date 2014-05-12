@@ -9,21 +9,15 @@ define(function(require){
 
   _.extend(ExerciseDeckRunnerFactory.prototype, {
 
-    createView: function(deckData, opts) {
-      var runnerModel = this.createRunnerModel(deckData);
+    createView: function(opts) {
+      var runnerModel = this.createRunnerModel(opts);
       var runnerView = this.createRunnerView(runnerModel);
       this.bindToRunnerView(runnerView, opts);
       return runnerView;
     },
 
-    createRunnerModel: function(deckData) {
-      // @TODO: these will come from deckData.
-      // But for now hardcoded.
-      var introSlides = [];
-      var exerciseSlides = [
-        //{modelType: 'FeelTheBeatExerciseModel', bpm: 90, length: 4, threshold: .4, maxFailedBeats: 1},
-        {modelType: 'ExerciseModel', type: 'DummyExercise'}
-      ];
+    createRunnerModel: function(opts) {
+      var runnerDef = opts.deckRunnerDefinition;
 
       // Setup nested deck models.
       var _this = this;
@@ -31,15 +25,19 @@ define(function(require){
         var defaults = {parse: true};
         return _this.injector.get('DeckModel')(attrs, _.extend(defaults, opts));
       };
+      var introSlides = runnerDef.introSlides;
       var introDeckModel = deckModelFactory({slides: introSlides});
+
+      var exerciseSlides = runnerDef.exerciseSlides;
       var exerciseDeckModel = deckModelFactory({ slides: exerciseSlides });
+
 
       // Setup runner model.
       var ExerciseRunnerModel = this.injector.get('ExerciseRunnerModel');
       var runnerModel = new ExerciseRunnerModel({
         introDeck: introDeckModel,
         exerciseDeck: exerciseDeckModel,
-        destination: ''
+        destination: opts.destination
       });
 
       return runnerModel;
@@ -55,6 +53,7 @@ define(function(require){
     },
 
     bindToRunnerView: function (runnerView, opts) {
+      var _this = this;
 
       // Bind to runner navigation events.
       runnerView.on('navigate', function(route){
@@ -73,7 +72,7 @@ define(function(require){
 
       // Bind to runner submission event.
       runnerView.on('submit', function(){
-        this.onRunnerSubmission(runnerView, opts);
+        _this.onRunnerSubmission(runnerView, opts);
       }, this);
     },
 

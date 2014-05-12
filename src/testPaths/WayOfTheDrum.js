@@ -4,23 +4,31 @@ define(function(require) {
     title: "Way of the Drum",
     description: "<p>This path helps you develop your sense of rhythm.</p>",
     icon: 'drum',
-    viewType: 'path',
+    viewType: 'PathView',
     nodeType: 'path',
     children: [
       {
         title: "White Belt",
         description: "Medium tempos",
-        viewType: "path",
+        viewType: "PathView",
         nodeType: "scroll",
         iconClass: "white-belt",
         children: [
-          {viewType: "deck", nodeType: "deck", 
-            exerciseSlides: [
-              {type: 'FeelTheBeat', bpm: 80, length: 8, threshold: .4, maxFailedBeats: 4},
-              {type: 'FeelTheBeat', bpm: 85, length: 8, threshold: .2, maxFailedBeats: 4},
-              {type: 'FeelTheBeat', bpm: 80, length: 8, threshold: .3, maxFailedBeats: 4},
-              {type: 'FeelTheBeat', bpm: 85, length: 8, threshold: .1, maxFailedBeats: 4}
-            ],
+          {
+            viewType: "ExerciseDeckRunnerView", 
+            nodeType: "deck", 
+            deckRunnerDefinition: {
+              exerciseSlides: [
+                {viewType: 'FeelTheBeatExerciseView', modelType: 'ExerciseSlideModel',
+                  bpm: 80, length: 8, threshold: .4, maxFailedBeats: 4},
+                {viewType: 'FeelTheBeatExerciseView', modelType: 'ExerciseSlideModel',
+                  bpm: 85, length: 8, threshold: .2, maxFailedBeats: 4},
+                {viewType: 'FeelTheBeatExerciseView', modelType: 'ExerciseSlideModel',
+                  bpm: 80, length: 8, threshold: .3, maxFailedBeats: 4},
+                {viewType: 'FeelTheBeatExerciseView', modelType: 'ExerciseSlideModel',
+                  bpm: 85, length: 8, threshold: .1, maxFailedBeats: 4},
+              ],
+            }
           },
         ]
       },

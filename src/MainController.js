@@ -20,11 +20,11 @@ define(function(require){
       var view;
       var fitScreen = false;
 
-      if (opts.viewType === 'deck') {
-        view = ExerciseDeckRunnerFactory.createView(opts.model, opts.opts);
+      if (opts.viewType === 'ExerciseDeckRunnerView') {
+        view = ExerciseDeckRunnerFactory.createView(opts);
         fitScreen = true;
       }
-      else if (opts.viewType === 'path') {
+      else if (opts.viewType === 'PathView') {
         var viewOpts = {id: 'content'};
         view = PathViewFactory(opts.model, viewOpts);
       }

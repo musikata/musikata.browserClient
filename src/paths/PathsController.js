@@ -21,8 +21,12 @@ define(function(require){
       .then(function(node) {
         var viewType = node.get('viewType');
 
-        var opts = {};
-        if (viewType === 'deck') {
+        var opts = {viewType: viewType};
+        if (viewType === 'ExerciseDeckRunnerView') {
+          // Set deck runner definition.
+          opts.deckRunnerDefinition = node.get('deckRunnerDefinition');
+
+
           // Create callback for deck submission.
           opts.submissionHandler = function (result) {
             _this.onDeckSubmit({result: result, node: node, pathId: pathId,
@@ -31,10 +35,12 @@ define(function(require){
 
           // Set destination to be parent node.
           opts.destination = Backbone.history.fragment.replace(/(.*)\/.*/, '$1');
+        } 
+        else if (viewType === 'PathView') {
+          opts.model = node;
         }
 
-        Musikata.app.mainController.showView({viewType: node.get('viewType'),
-          model: node, opts: opts});
+        Musikata.app.mainController.showView(opts);
       })
       .fail(function (err) {
         console.log("error: ", err) 
