@@ -1,0 +1,33 @@
+KataRunner shows a stream of kata exercises.
+
+It differs from a deck in that the stream continues, and adapts as the user 'powers up'.
+
+- It should have a power bar.
+
+- It should have a current level indicator.
+
+- It should have nav/action buttons.
+
+- It should have milestone indicators.
+
+- It should a stream of kata challenges until the user maxes out the power bar.
+
+- When the user maxes out the power bar, it should update the milestone tokens.
+
+- When the milestone tokens are maxed out, the level should update.
+
+- There should be intermediate status views that show up at the transitions between states.
+
+States:
+- kata
+- milestone
+- level
+
+kata to milestone: triggered when power bar maxes out. Transition: power bar flashes. View shows milestone scene. 
+
+milestone to kata: triggered after milestone is displayed, and milestones still remain. power bar resets. User can choose to keep training, or go back to dojo. This encourages gradual training.
+
+milestone to level: triggered after milestone is displayed, and milestones are all done. Shows level view.
+
+level view to kata: triggered when user chooses to keep training.
+
