@@ -1,54 +1,69 @@
 define(function(require) {
 
+  var Backbone;
   var KataRunnerPresenter;
 
   describe('KataRunnerPresenter', function() {
 
     beforeEach(function(done) {
+      Backbone = require('backbone'); 
       KataRunnerPresenter = require('./KataRunnerPresenter');
       done();
     });
 
-    iit('should be defined', function() {
+    it('should be defined', function() {
       expect(KataRunnerPresenter).toBeDefined();
       console.log(KataRunnerPresenter);
     });
 
-    it('should have a score model', function() {
-      this.fail();
-    });
+    describe('after starting', function() {
 
-    it('should have a level model', function() {
-      this.fail();
-    });
+      it('should show challenge if score < max score', function() {
+        var presenter = new KataRunnerPresenter();
+        spyOn(presenter, '_showChallenge');
 
-    it('should have an actions model', function() {
-      this.fail();
-    });
+        presenter.start();
 
-    it('should have a milestones model', function() {
-      this.fail();
-    });
+        expect(presenter._showChallenge).toHaveBeenCalled();
+      });
 
-    it('should show questions until score exceeds max score', function() {
-      this.fail();
-    });
+      it('should increment score if passed challenge', function() {
+        var presenter = new KataRunnerPresenter();
 
-    it('should show milestone view when score exceeds max score', function() {
-      this.fail();
-    });
+        presenter.start();
+        presenter.get('curChallenge').set('result', 'pass');
 
-    it('should update milestones when score maxes out', function() {
-      this.fail();
-    });
+        expect(presenter.get('score')).toBe(10);
+      });
 
-    it('should show level view when milestones are maxed', function() {
-      this.fail();
-    });
+      it('should not increment score if failed challenge', function() {
+        var presenter = new KataRunnerPresenter();
 
-    it('should update level when milestones are maxed out', function() {
-      this.fail();
-    });
+        presenter.start();
+        presenter.get('curChallenge').set('result', 'fail');
 
+        expect(presenter.get('score')).toBe(0);
+      });
+
+      iit('should show milestone when score maxes out', function() {
+        var presenter = new KataRunnerPresenter();
+        spyOn(presenter, '_showMilestone');
+
+        presenter.start();
+        presenter.set('score', 95);
+        presenter.get('curChallenge').set('result', 'pass');
+
+        expect(presenter._showMilestone).toHaveBeenCalled();
+      });
+
+      it('should show level view when milestones are maxed', function() {
+        this.fail();
+      });
+
+      it('should update level when milestones are maxed out', function() {
+        this.fail();
+      });
+
+    });
   });
 });

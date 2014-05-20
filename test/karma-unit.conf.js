@@ -27,6 +27,17 @@ module.exports = function(config) {
     // frameworks to use
     frameworks: ['jasmine', 'requirejs'],
 
+    /*
+    plugins : [
+      'karma-phantomjs-launcher',
+      'karma-chrome-launcher',
+      'karma-firefox-launcher',
+      'karma-jasmine',
+      'karma-requirejs',
+      'karma-growl-reporter'
+    ],
+    */
+
     // list of files / patterns to load in the browser
     files: []
       .concat(srcFiles)
@@ -46,7 +57,11 @@ module.exports = function(config) {
 
     // test results reporter to use
     // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-    reporters: ['progress'],
+    reporters: ['progress', 'growl'],
+
+    growlReporter: {
+      reportEachFailure: true
+    },
 
 
     // web server port

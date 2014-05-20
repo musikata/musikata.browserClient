@@ -10,7 +10,10 @@ require.config({
     handlebars: 'bower_components/handlebars/handlebars',
     'backbone.stickit': 'bower_components/backbone.stickit/backbone.stickit',
     'infect': 'bower_components/infect/infect',
-    'pouchdb': 'bower_components/pouchdb-nightly.min/index'
+    'pouchdb': 'bower_components/pouchdb-nightly.min/index',
+    'deep-model': 'bower_components/backbone-deep-model/src/deep-model',
+    'backbone-relational': 'bower_components/backbone-relational/backbone-relational',
+    'backbone.nestedTypes': 'bower_components/backbone.nestedTypes/nestedTypes'
   },
 
   packages: [

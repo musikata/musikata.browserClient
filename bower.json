@@ -25,7 +25,10 @@
     "backbone.stickit": "~0.7.0",
     "di.js": "git@github.com:NickQiZhu/di.js#~0.3.3",
     "di4js": "~1.0.0",
-    "infect": "~0.4.0"
+    "infect": "~0.4.0",
+    "backbone-deep-model": "git://github.com/powmedia/backbone-deep-model.git#c06aec9f63d67556f7d85d32d644e5271c250f23",
+    "backbone-relational": "~0.8.8",
+    "backbone.nestedTypes": "git://github.com/Volicon/backbone.nestedTypes.git#1297cb9ddcec28f9ef6de3d343d3d3e4da496ed5"
   },
   "devDependencies": {
     "requirejs": "~2.1.11",
