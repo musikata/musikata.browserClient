@@ -13,7 +13,8 @@ require.config({
     'pouchdb': 'bower_components/pouchdb-nightly.min/index',
     'deep-model': 'bower_components/backbone-deep-model/src/deep-model',
     'backbone-relational': 'bower_components/backbone-relational/backbone-relational',
-    'backbone.nestedTypes': 'bower_components/backbone.nestedTypes/nestedTypes'
+    'backbone.nestedTypes': 'bower_components/backbone.nestedTypes/nestedtypes',
+    'backbone.modelbinder': 'bower_components/backbone.modelbinder/Backbone.ModelBinder'
   },
 
   packages: [

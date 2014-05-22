@@ -64,7 +64,7 @@ define(function(require) {
         expect(presenter._showMilestone).toHaveBeenCalled();
       });
 
-      it('should show level view when milestones max out', function() {
+      it('should show level when milestones max out', function() {
         var presenter = new KataRunnerPresenter();
         spyOn(presenter, '_showLevel');
 

@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="../../../bower_components/musikata.theme/css/app.css">
+  </head>
+  <body>
+    <div id="topBar" class="top-bar">
+      <ul class="title-area">
+        <li class="name">
+        <h1>
+          <a href="#">
+            <div id="logo"></div>
+          </a>
+        </h1>
+        </li>
+      </ul>
+    </div>
+
+    <div id="main">
+      <div id="content"></div>
+    </div>
+
+    <script>
+      var Musikata = {};
+    </script>
+
+    <script src="../../../bower_components/requirejs/require.js"></script>
+    <script src="../../require.common.js"></script>
+    <script>
+      require.config({
+        baseUrl: 'http://127.0.0.1/musikata/code/musikata.browserClient'
+      });
+
+      require(['./main.js']);
+    </script>
+
+  </body>
+</html>
