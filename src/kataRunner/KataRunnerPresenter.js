@@ -7,7 +7,15 @@ define(function(require) {
     defaults: {
       score: 0,
       maxScore: 100,
-      actions: Backbone.Collection,
+      actions: Backbone.Collection.extend({
+        model: NestedTypes.Model.extend({
+          defaults: {
+            action: '',
+            label: '',
+            active: true
+          }
+        })
+      }),
       level: 2,
       milestones: 3,
       milestonesPerLevel: 3
@@ -25,9 +33,23 @@ define(function(require) {
       /* Show a kata. */
       var kataView = this._getKataView();
 
+      // Set actions.
+      this.actions.reset([{action: 'check', label: 'check', active: false}]);
+
       // Wire the kata.
-      this.listenTo(kataView.model, 'change:result', this._closeKata, this);
-      this.listenTo(kataView, 'actions:set', this._setActions, this);
+      this.listenTo(kataView.model, 'submitted', function() {
+        this.actions.at(0).active = true;
+      
+        this.listenToOnce(kataView.model, 'evaluated', function() {
+          this.actions.reset([{action: 'continue', label: 'continue', active: false}]);
+
+          this.listenToOnce(this.view, 'action:continue', function() {
+            this._closeKata(kataView.model);
+          }, this);
+
+        }, this)
+
+      }, this);
 
       this.view.body.show(kataView);
       this.set('curKata', kataView);
@@ -45,7 +67,7 @@ define(function(require) {
 
         submit: function() {
           console.log('submit');
-          this.trigger('submit');
+          this.trigger('submitted');
           var _this = this;
           setTimeout(function() {
             console.log('evaluated');
@@ -73,8 +95,9 @@ define(function(require) {
       });
     },
 
-    _closeKata: function(kataModel, kataResult) {
+    _closeKata: function(kataModel) {
       console.log('_closeKata');
+      var kataResult = kataModel.get('result');
       if (kataResult === 'pass') {
         this.score += 10;
       }

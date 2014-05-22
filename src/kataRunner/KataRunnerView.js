@@ -1,4 +1,5 @@
 define(function(require) {
+  var _ = require('underscore');
   var Marionette = require('marionette');
   var HBS = require('handlebars');
   var ModelBinder = require('backbone.modelbinder');
@@ -12,17 +13,39 @@ define(function(require) {
       body: '.body-region'
     },
 
+    ui: {
+      actions: '.actions'
+    },
+
+    events: {
+      'click @ui.actions': 'onClickAction'
+    },
+
     initialize: function() {
       this.model.setView(this);
       this.modelBinder = new ModelBinder();
+    },
+
+    onClickAction: function(e) {
+      var action = $(e.target).data('action');
+      this.trigger('action:' + action); 
+      console.log('oca', action);
     },
 
     onRender: function() {
       this.modelBinder.bind(this.model, this.el, {
         score: '.score',
         milestones: '.milestones',
-        level: '.level'
+        level: '.level',
       });
+
+      // Manually bind actions.
+      this.listenTo(this.model.actions, 'reset add remove', function() {
+        this.ui.actions.empty();
+        _.each(this.model.actions.models, function(actionModel) {
+          this.ui.actions.append('<button data-action="' + actionModel.action + '">' + actionModel.label + '</button>');
+        }, this);
+      }, this);
     },
 
     showViewInBody: function(view) {
