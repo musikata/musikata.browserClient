@@ -13,56 +13,69 @@ define(function(require) {
     },
 
     start: function() {
-      this._showChallenge();
+      this._showKata();
     },
 
-    _showChallenge: function() {
-      /* Show a challenge. */
-      var challenge = this._getChallenge();
+    _showKata: function() {
+      /* Show a kata. */
+      var kata = this._getKata();
 
-      // Wire the challenge.
-      this.listenTo(challenge, 'change:result', this._closeChallenge, this);
+      // Wire the kata.
+      this.listenTo(kata, 'change:result', this._closeKata, this);
+      this.listenTo(kata, 'actions:set', this._setActions, this);
 
-      this.set('curChallenge', challenge);
+      this.set('curKata', kata);
     },
 
-    _getChallenge: function() {
-      /* Get a challenge. */
+    _getKata: function() {
+      /* Get a kata. */
       return new Backbone.Model();
     },
 
-    _closeChallenge: function(challengeModel, challengeResult) {
-      if (challengeResult === 'pass') {
+    _closeKata: function(kataModel, kataResult) {
+      if (kataResult === 'pass') {
         this.set('score', this.get('score') + 10);
       }
 
       if (this.get('score') > this.get('maxScore')) {
         this._showMilestone();
       } else {
-        this._showChallenge();
+        this._showKata();
       }
     },
 
+    _setActions: function(newActions) {
+      this.get('actions').reset(newActions);
+    },
+
     _showMilestone: function() {
+      console.log('_showMilestone');
     },
 
     _closeMilestone: function() {
       this._updateMilestones();
 
-      if (this._getNumRemainingMilestones() === 0) {
+      if (this._remainingMilestones === 0) {
         this._showLevel();
       } else  {
-        this._showChallenge();
+        this._showKata();
       }
-    },
-
-    _getNumRemainingMilestones: function() {
-      return this._remainingMilestones;
     },
 
     _updateMilestones: function() {
       this._remainingMilestones -= 1;
       return;
+    },
+
+    _showLevel: function() {
+      console.log('_showLevel');
+    },
+
+    _closeLevel: function() {
+      this._updateLevel();
+    },
+
+    _updateLevel: function() {
     }
 
   });
