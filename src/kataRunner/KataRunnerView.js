@@ -22,7 +22,7 @@ define(function(require) {
     },
 
     initialize: function() {
-      this.model.setView(this);
+      this.model.view = this;
       this.modelBinder = new ModelBinder();
     },
 
@@ -48,7 +48,7 @@ define(function(require) {
       }, this);
     },
 
-    showViewInBody: function(view) {
+    setBodyView: function(view) {
       this.body.show(view);
     }
   });

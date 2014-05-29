@@ -18,11 +18,8 @@ define(function(require) {
       }),
       level: 2,
       milestones: 3,
-      milestonesPerLevel: 3
-    },
-
-    setView: function(view) {
-      this.view = view;
+      milestonesPerLevel: 3,
+      kataViewFactory: null,
     },
 
     start: function() {
@@ -64,44 +61,7 @@ define(function(require) {
     },
 
     _getKataView: function() {
-      /* Get a kata view. */
-      // @TODO: get view via factory.
-      var Marionette = require('marionette');
-
-      var KataViewModel = Backbone.Model.extend({
-        postViewInitialize: function() {
-          this.listenTo(this.view, 'submit', this.submit, this);
-        },
-
-        submit: function() {
-          console.log('submit');
-          this.trigger('submitted');
-          var _this = this;
-          setTimeout(function() {
-            console.log('evaluated');
-            _this.set('result', 'pass');
-            _this.trigger('evaluated');
-            _this.view.trigger('evaluated', {result: _this.get('result')});
-          }, 500);
-        }
-      });
-
-      var KataView = Marionette.ItemView.extend({
-        events: {'click button': 'onButtonClick' },
-        initialize: function() {
-          this.model.view = this;
-          this.model.postViewInitialize();
-        },
-        template: function() {return new Date() + '<button>KataView</button>';},
-        onButtonClick: function() {
-          console.log('onButtonClick');
-          this.trigger('submit');
-        }
-      });
-
-      return new KataView({
-        model: new KataViewModel()
-      });
+      return this.kataViewFactory.getKataView();
     },
 
     _closeKata: function(kataModel) {
@@ -154,9 +114,9 @@ define(function(require) {
 
     _closeMilestone: function() {
       console.log('_closeMilestone');
-      this._milestones -= 1;
+      this.milestones -= 1;
 
-      if (this._milestones === 0) {
+      if (this.milestones === 0) {
         this._showLevel();
       } else  {
         this.score = 0;
