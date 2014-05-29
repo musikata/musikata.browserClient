@@ -37,22 +37,30 @@ define(function(require) {
       this.actions.reset([{action: 'check', label: 'check', active: false}]);
 
       // Wire the kata.
-      this.listenTo(kataView.model, 'submitted', function() {
-        this.actions.at(0).active = true;
-      
-        this.listenToOnce(kataView.model, 'evaluated', function() {
-          this.actions.reset([{action: 'continue', label: 'continue', active: false}]);
 
-          this.listenToOnce(this.view, 'action:continue', function() {
-            this._closeKata(kataView.model);
-          }, this);
-
-        }, this)
-
+      // Listen for submission.
+      this.listenToOnce(kataView, 'submitted', function() {
+        this.actions.at(0).set({label: 'checking', active: true});
       }, this);
 
-      this.view.body.show(kataView);
-      this.set('curKata', kataView);
+      // Listen for evaluation.
+      this.listenToOnce(kataView, 'evaluated', function(data) {
+        // Update score.
+        if (data.result === 'pass') {
+          this.score += 10;
+        }
+
+        // Update actions.
+        this.actions.reset([{action: 'continue', label: 'continue', active: false}]);
+      }, this);
+
+      // Close kata on continue.
+      this.listenToOnce(this.view, 'action:continue', function() {
+        this._closeKata(kataView);
+      }, this);
+
+      this.view.setBodyView(kataView);
+      this.set('curKataView', kataView);
     },
 
     _getKataView: function() {
@@ -73,6 +81,7 @@ define(function(require) {
             console.log('evaluated');
             _this.set('result', 'pass');
             _this.trigger('evaluated');
+            _this.view.trigger('evaluated', {result: _this.get('result')});
           }, 500);
         }
       });
@@ -97,11 +106,6 @@ define(function(require) {
 
     _closeKata: function(kataModel) {
       console.log('_closeKata');
-      var kataResult = kataModel.get('result');
-      if (kataResult === 'pass') {
-        this.score += 10;
-      }
-
       if (this.get('score') > this.get('maxScore')) {
         this._showMilestone();
       } else {
@@ -150,9 +154,9 @@ define(function(require) {
 
     _closeMilestone: function() {
       console.log('_closeMilestone');
-      this.milestones -= 1;
+      this._milestones -= 1;
 
-      if (this.milestones === 0) {
+      if (this._milestones === 0) {
         this._showLevel();
       } else  {
         this.score = 0;
